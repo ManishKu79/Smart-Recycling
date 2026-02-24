@@ -1,0 +1,48 @@
+/* frontend/src/App.css */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 30px 0;
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  gap: 24px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  .main-content {
+    padding: 20px 0;
+  }
+}

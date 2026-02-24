@@ -1,0 +1,161 @@
+/* frontend/src/pages/HowItWorks.css */
+.how-it-works {
+  padding: 0;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  padding: 60px 0;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.hero-section h1 {
+  color: #065f46;
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.hero-subtitle {
+  color: #374151;
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.process-section {
+  padding: 40px 0;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.step-card {
+  padding: 30px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.step-card:hover {
+  border-color: #10b981;
+  transform: translateY(-5px);
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.step-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #10b981;
+  opacity: 0.5;
+}
+
+.step-icon {
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  background: #f0fdf4;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-card h3 {
+  color: #1f2937;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+}
+
+.step-description {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.step-details {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step-details li {
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+  color: #374151;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.step-details li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.faq-section {
+  padding: 60px 0;
+  background: #f9fafb;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin: 40px 0;
+}
+
+.faq-card {
+  padding: 25px;
+}
+
+.faq-card h4 {
+  color: #1f2937;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.faq-card p {
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.cta-section {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.cta-section .btn {
+  min-width: 200px;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 20px;
+  }
+  
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+}

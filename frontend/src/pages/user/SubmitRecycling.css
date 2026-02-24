@@ -1,0 +1,266 @@
+/* frontend/src/pages/user/SubmitRecycling.css */
+.submit-recycling {
+  padding: 20px 0;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-header h1 {
+  color: #065f46;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.page-header p {
+  color: #6b7280;
+}
+
+.recycling-container {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.recycling-form {
+  padding: 30px;
+}
+
+.ai-upload-section {
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.ai-upload-section h3 {
+  color: #1f2937;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.upload-area {
+  border: 2px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f9fafb;
+}
+
+.upload-area:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+}
+
+.upload-placeholder {
+  color: #6b7280;
+}
+
+.upload-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-top: 5px;
+}
+
+.analyzing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  color: #10b981;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.detection-results {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f0fdf4;
+  border-radius: 8px;
+}
+
+.detection-results h4 {
+  color: #065f46;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.detection-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #d1fae5;
+}
+
+.detection-item:last-child {
+  border-bottom: none;
+}
+
+.detection-type {
+  text-transform: capitalize;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.detection-confidence {
+  color: #059669;
+  font-size: 0.9rem;
+}
+
+.recycling-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.points-preview {
+  background: #fef3c7;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.points-label {
+  color: #92400e;
+  font-weight: 600;
+}
+
+.points-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+}
+
+.recycling-info {
+  padding: 30px;
+  height: fit-content;
+}
+
+.recycling-info h3 {
+  color: #1f2937;
+  margin: 20px 0 15px;
+  font-size: 1.2rem;
+}
+
+.recycling-info h3:first-child {
+  margin-top: 0;
+}
+
+.guidelines-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px;
+}
+
+.guidelines-list li {
+  padding: 8px 0;
+  padding-left: 30px;
+  position: relative;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.guidelines-list li::before {
+  position: absolute;
+  left: 0;
+  font-size: 16px;
+}
+
+.guidelines-list li:nth-child(-n+3)::before {
+  content: '✅';
+}
+
+.guidelines-list li:nth-child(n+4)::before {
+  content: '❌';
+}
+
+.points-table {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.point-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.point-row:last-child {
+  border-bottom: none;
+}
+
+.point-row span:first-child {
+  color: #374151;
+}
+
+.point-row span:last-child {
+  color: #10b981;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .recycling-container {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .recycling-form,
+  .recycling-info {
+    padding: 20px;
+  }
+}

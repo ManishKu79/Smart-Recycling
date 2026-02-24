@@ -1,0 +1,281 @@
+/* frontend/src/pages/Home.css */
+.home {
+  padding: 20px 0;
+}
+
+.hero {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 16px;
+  padding: 60px 40px;
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  color: #065f46;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.hero-icon {
+  font-size: 3rem;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #374151;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  min-width: 180px;
+}
+
+.features {
+  margin-bottom: 60px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 30px;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.feature-card:hover {
+  border-color: #10b981;
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  color: #1f2937;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.feature-card p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.stats {
+  margin-bottom: 60px;
+}
+
+.stats-card {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 40px;
+}
+
+.stats-card h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 1.8rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.process-preview {
+  margin-bottom: 60px;
+  padding: 40px 0;
+  background: #f9fafb;
+  border-radius: 16px;
+}
+
+.process-steps {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.process-step {
+  flex: 1;
+  min-width: 200px;
+  max-width: 250px;
+  text-align: center;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #10b981;
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 auto 15px;
+}
+
+.process-step h3 {
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.process-step p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.process-arrow {
+  font-size: 2rem;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.process-cta {
+  text-align: center;
+}
+
+.cta-card {
+  text-align: center;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  padding: 50px;
+}
+
+.cta-card h2 {
+  color: #92400e;
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+}
+
+.cta-card p {
+  color: #92400e;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.cta-btn {
+  min-width: 200px;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 40px 20px;
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+    flex-direction: column;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .process-steps {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .process-arrow {
+    transform: rotate(90deg);
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+  
+  .cta-card {
+    padding: 30px 20px;
+  }
+  
+  .cta-card h2 {
+    font-size: 1.5rem;
+  }
+}

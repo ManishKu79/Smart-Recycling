@@ -1,0 +1,158 @@
+/* frontend/src/pages/admin/AdminSubmissions.css */
+.admin-submissions {
+  padding: 20px 0;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  border-color: #10b981;
+}
+
+.filter-btn.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.submissions-table {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 15px;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.table td {
+  padding: 15px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table tr:hover {
+  background: #f9fafb;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.waste-type {
+  text-transform: capitalize;
+}
+
+.points {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.btn-success {
+  background: #10b981;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px;
+  color: #9ca3af;
+}
+
+@media (max-width: 768px) {
+  .table {
+    min-width: 800px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}

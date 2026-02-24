@@ -1,0 +1,166 @@
+/* frontend/src/pages/user/UserProfile.css */
+.user-profile {
+  padding: 20px 0;
+}
+
+.profile-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.profile-sidebar {
+  padding: 30px;
+  text-align: center;
+}
+
+.profile-avatar {
+  margin-bottom: 20px;
+}
+
+.avatar-icon {
+  font-size: 80px;
+  width: 120px;
+  height: 120px;
+  background: #f0fdf4;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.profile-sidebar h2 {
+  color: #1f2937;
+  margin-bottom: 5px;
+  font-size: 1.3rem;
+}
+
+.profile-email {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 20px 0;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.member-since {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.profile-form {
+  padding: 30px;
+}
+
+.message {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.message.success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #10b981;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #ef4444;
+}
+
+.profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-group label {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.info-group p {
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.profile-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-row,
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}
