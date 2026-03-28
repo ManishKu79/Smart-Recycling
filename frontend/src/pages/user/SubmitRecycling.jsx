@@ -1,334 +1,502 @@
 // frontend/src/pages/user/SubmitRecycling.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import RedeemCode from '../../components/RedeemCode';
 import './SubmitRecycling.css';
 
 function SubmitRecycling() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    wasteType: '',
-    weight: '',
-    description: '',
-    location: '',
-    date: new Date().toISOString().split('T')[0]
+  const [submissionMethod, setSubmissionMethod] = useState('smartbin');
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  
+  // Pickup Request Form State
+  const [pickupForm, setPickupForm] = useState({
+    wasteTypes: [
+      { type: '', estimatedWeight: '' }
+    ],
+    address: {
+      street: '',
+      city: '',
+      pincode: '',
+      landmark: ''
+    },
+    preferredDate: '',
+    preferredTimeSlot: 'morning',
+    specialInstructions: ''
   });
-  
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [aiDetections, setAiDetections] = useState([]);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
-  const fileInputRef = useRef(null);
 
   const wasteTypes = [
-    { value: '', label: 'Select waste type' },
-    { value: 'plastic', label: '♻️ Plastic (10 pts/kg)' },
-    { value: 'paper', label: '📄 Paper (8 pts/kg)' },
-    { value: 'metal', label: '⚙️ Metal (25 pts/kg)' },
-    { value: 'ewaste', label: '💻 E-waste (100 pts/kg)' },
-    { value: 'glass', label: '🍶 Glass (5 pts/kg)' },
-    { value: 'batteries', label: '🔋 Batteries (150 pts/kg)' },
-    { value: 'textiles', label: '👕 Textiles (7 pts/kg)' }
+    { value: 'plastic', label: '♻️ Plastic', points: 10 },
+    { value: 'paper', label: '📄 Paper', points: 8 },
+    { value: 'metal', label: '⚙️ Metal', points: 25 },
+    { value: 'ewaste', label: '💻 E-waste', points: 100 },
+    { value: 'glass', label: '🍶 Glass', points: 5 },
+    { value: 'batteries', label: '🔋 Batteries', points: 150 },
+    { value: 'textiles', label: '👕 Textiles', points: 7 }
   ];
 
-  const calculatePoints = () => {
-    if (!formData.wasteType || !formData.weight) return 0;
-    
-    const pointsMap = {
-      plastic: 10,
-      paper: 8,
-      metal: 25,
-      ewaste: 100,
-      glass: 5,
-      batteries: 150,
-      textiles: 7
-    };
-    
-    return formData.weight * pointsMap[formData.wasteType];
+const timeSlots = [
+  { value: 'morning', label: 'Morning (9:00 AM - 12:00 PM)' },
+  { value: 'afternoon', label: 'Afternoon (12:00 PM - 3:00 PM)' },
+  { value: 'evening', label: 'Evening (3:00 PM - 6:00 PM)' }
+];
+
+  // ============ AUTO LOCATION DETECTION ============
+  const detectCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setMessage({ type: 'error', text: 'Geolocation is not supported by your browser' });
+      return;
+    }
+
+    setDetectingLocation(true);
+    setMessage({ type: '', text: '' });
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Reverse geocoding using OpenStreetMap Nominatim API
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+          );
+          const data = await response.json();
+          
+          if (data && data.address) {
+            const address = data.address;
+            const street = address.road || address.suburb || address.neighbourhood || '';
+            const city = address.city || address.town || address.village || '';
+            const pincode = address.postcode || '';
+            
+            setPickupForm(prev => ({
+              ...prev,
+              address: {
+                ...prev.address,
+                street: street,
+                city: city,
+                pincode: pincode
+              }
+            }));
+            
+            setMessage({ type: 'success', text: '📍 Location detected successfully!' });
+          } else {
+            throw new Error('Could not get address details');
+          }
+        } catch (error) {
+          console.error('Reverse geocoding error:', error);
+          // Fallback: just set coordinates
+          setMessage({ 
+            type: 'info', 
+            text: `Location detected! Please enter your address manually. Coordinates: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}` 
+          });
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        setDetectingLocation(false);
+        
+        let errorMessage = 'Unable to detect location. ';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Please allow location access in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Location request timed out.';
+            break;
+          default:
+            errorMessage += 'Please enter your address manually.';
+        }
+        setMessage({ type: 'error', text: errorMessage });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.wasteType) {
-      newErrors.wasteType = 'Please select waste type';
-    }
-    
-    if (!formData.weight) {
-      newErrors.weight = 'Weight is required';
-    } else if (formData.weight <= 0 || formData.weight > 1000) {
-      newErrors.weight = 'Weight must be between 0.1 and 1000 kg';
-    }
-    
-    return newErrors;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+  // ============ PICKUP REQUEST HANDLERS ============
+  const addWasteType = () => {
+    setPickupForm(prev => ({
       ...prev,
-      [name]: value
+      wasteTypes: [...prev.wasteTypes, { type: '', estimatedWeight: '' }]
     }));
-    
-    if (errors[name]) {
-      setErrors(prev => ({
+  };
+
+  const removeWasteType = (index) => {
+    if (pickupForm.wasteTypes.length === 1) return;
+    setPickupForm(prev => ({
+      ...prev,
+      wasteTypes: prev.wasteTypes.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateWasteType = (index, field, value) => {
+    const updated = [...pickupForm.wasteTypes];
+    updated[index][field] = value;
+    setPickupForm(prev => ({ ...prev, wasteTypes: updated }));
+  };
+
+  const handlePickupChange = (e, section, field) => {
+    const { value } = e.target;
+    if (section === 'address') {
+      setPickupForm(prev => ({
         ...prev,
-        [name]: ''
+        address: { ...prev.address, [field]: value }
       }));
-    }
-  };
-
-  const handleImageSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-      
-      analyzeImage(file);
-    }
-  };
-
-  const analyzeImage = async (file) => {
-    setIsAnalyzing(true);
-    try {
-      const result = await api.detectWaste(file);
-      
-      if (result.success && result.detections.length > 0) {
-        setAiDetections(result.detections);
-        
-        const topDetection = result.detections[0];
-        setFormData(prev => ({
-          ...prev,
-          wasteType: topDetection.waste_type
-        }));
-      }
-    } catch (error) {
-      console.error('AI analysis failed:', error);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = validateForm();
-    
-    if (Object.keys(newErrors).length === 0) {
-      setIsSubmitting(true);
-      
-      try {
-        const submissionData = {
-          wasteType: formData.wasteType,
-          weight: parseFloat(formData.weight),
-          description: formData.description,
-          location: formData.location,
-          date: formData.date
-        };
-
-        await api.submitRecycling(submissionData);
-        
-        alert('✅ Recycling submitted successfully!');
-        navigate('/user/dashboard');
-        
-      } catch (error) {
-        alert('❌ Submission failed: ' + error.message);
-      } finally {
-        setIsSubmitting(false);
-      }
     } else {
-      setErrors(newErrors);
+      setPickupForm(prev => ({ ...prev, [field]: value }));
     }
+  };
+
+  const calculateTotalEstimatedPoints = () => {
+    let total = 0;
+    for (const item of pickupForm.wasteTypes) {
+      if (item.type && item.estimatedWeight) {
+        const waste = wasteTypes.find(w => w.value === item.type);
+        if (waste) {
+          total += waste.points * parseFloat(item.estimatedWeight);
+        }
+      }
+    }
+    return Math.round(total);
+  };
+
+  const calculateTotalWeight = () => {
+    let total = 0;
+    for (const item of pickupForm.wasteTypes) {
+      if (item.estimatedWeight) {
+        total += parseFloat(item.estimatedWeight);
+      }
+    }
+    return total.toFixed(1);
+  };
+
+  const handlePickupSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (pickupForm.wasteTypes.some(w => !w.type || !w.estimatedWeight)) {
+      setMessage({ type: 'error', text: 'Please fill all waste type details' });
+      return;
+    }
+    
+    if (!pickupForm.address.street || !pickupForm.address.city || !pickupForm.address.pincode) {
+      setMessage({ type: 'error', text: 'Please fill complete address' });
+      return;
+    }
+    
+    if (!pickupForm.preferredDate) {
+      setMessage({ type: 'error', text: 'Please select a pickup date' });
+      return;
+    }
+    
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      const response = await api.createPickupRequest({
+        wasteTypes: pickupForm.wasteTypes.map(w => ({
+          type: w.type,
+          estimatedWeight: parseFloat(w.estimatedWeight)
+        })),
+        address: pickupForm.address,
+        preferredDate: pickupForm.preferredDate,
+        preferredTimeSlot: pickupForm.preferredTimeSlot,
+        specialInstructions: pickupForm.specialInstructions
+      });
+      
+      setMessage({ type: 'success', text: `✅ Pickup request submitted! Tracking Code: ${response.pickupRequest.trackingCode}` });
+      setTimeout(() => {
+        navigate('/user/dashboard');
+      }, 3000);
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Pickup request failed: ' + error.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ============ SMART BIN HANDLERS ============
+  const handleCodeRedeemed = (data) => {
+    setMessage({ type: 'success', text: `🎉 Success! You earned ${data.pointsEarned} points for recycling ${data.weight} kg of ${data.wasteType}!` });
+    setTimeout(() => {
+      navigate('/user/dashboard');
+    }, 2000);
   };
 
   return (
     <div className="submit-recycling">
       <div className="page-header">
         <h1>Submit Recycling</h1>
-        <p>Log your recycling activity and earn points</p>
+        <p>Choose how you want to recycle</p>
       </div>
 
-      <div className="recycling-container">
-        <div className="recycling-form card">
-          {/* AI Image Upload */}
-          <div className="ai-upload-section">
-            <h3>📸 Upload Photo (AI Detection)</h3>
-            <div 
-              className="upload-area"
-              onClick={() => fileInputRef.current.click()}
+      {/* Method Selection Tabs - Only 2 Options */}
+      <div className="method-tabs">
+        <button
+          className={`method-tab ${submissionMethod === 'smartbin' ? 'active' : ''}`}
+          onClick={() => setSubmissionMethod('smartbin')}
+        >
+          🎁 Smart Bin Code
+        </button>
+        <button
+          className={`method-tab ${submissionMethod === 'pickup' ? 'active' : ''}`}
+          onClick={() => setSubmissionMethod('pickup')}
+        >
+          🚛 Waste Pickup Request
+        </button>
+      </div>
+
+      {/* Message Display */}
+      {message.text && (
+        <div className={`message-box ${message.type === 'success' ? 'success' : message.type === 'error' ? 'error' : 'info'}`}>
+          <span>{message.type === 'success' ? '✅' : message.type === 'error' ? '❌' : 'ℹ️'}</span>
+          <span>{message.text}</span>
+        </div>
+      )}
+
+      {/* ============ SMART BIN SECTION ============ */}
+      {submissionMethod === 'smartbin' && (
+        <div className="smartbin-section">
+          <div className="redeem-section">
+            <div className="redeem-icon">🎁</div>
+            <h3>Have a Smart Bin Code?</h3>
+            <p>If you recycled at a SmartRecycle Smart Bin, you received a receipt with a unique code.</p>
+            <p>Enter that code here to instantly claim your points!</p>
+            
+            <button
+              className="btn-redeem-code-large"
+              onClick={() => setShowRedeemModal(true)}
             >
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="image-preview" />
-              ) : (
-                <div className="upload-placeholder">
-                  <span className="upload-icon">📷</span>
-                  <p>Click to upload waste image</p>
-                  <p className="upload-hint">AI will detect waste type automatically</p>
-                </div>
-              )}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageSelect}
-                accept="image/*"
-                style={{ display: 'none' }}
-              />
-            </div>
-
-            {isAnalyzing && (
-              <div className="analyzing">
-                <div className="spinner-small"></div>
-                <span>AI analyzing image...</span>
-              </div>
-            )}
-
-            {aiDetections.length > 0 && (
-              <div className="detection-results">
-                <h4>AI Detection Results:</h4>
-                {aiDetections.map((detection, index) => (
-                  <div key={index} className="detection-item">
-                    <span className="detection-type">{detection.waste_type}</span>
-                    <span className="detection-confidence">
-                      {Math.round(detection.confidence * 100)}% confidence
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+              📝 Enter Smart Bin Code
+            </button>
           </div>
+        </div>
+      )}
 
-          <form onSubmit={handleSubmit} className="recycling-form-fields">
-            <div className="form-group">
-              <label htmlFor="wasteType" className="form-label">
-                Waste Type *
-              </label>
-              <select
-                id="wasteType"
-                name="wasteType"
-                value={formData.wasteType}
-                onChange={handleChange}
-                className={`form-input ${errors.wasteType ? 'error' : ''}`}
-              >
-                {wasteTypes.map((type, index) => (
-                  <option key={index} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-              {errors.wasteType && (
-                <span className="error-message">{errors.wasteType}</span>
-              )}
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="weight" className="form-label">
-                  Weight (kg) *
-                </label>
-                <input
-                  type="number"
-                  id="weight"
-                  name="weight"
-                  value={formData.weight}
-                  onChange={handleChange}
-                  className={`form-input ${errors.weight ? 'error' : ''}`}
-                  placeholder="0.0"
-                  step="0.1"
-                  min="0.1"
-                  max="1000"
-                />
-                {errors.weight && (
-                  <span className="error-message">{errors.weight}</span>
+      {/* ============ WASTE PICKUP SECTION ============ */}
+      {submissionMethod === 'pickup' && (
+        <form className="pickup-form" onSubmit={handlePickupSubmit}>
+          {/* Waste Types Section */}
+          <div className="form-section">
+            <h3>🗑️ Waste Items</h3>
+            <p className="section-hint">Add the waste items you want to be picked up</p>
+            
+            {pickupForm.wasteTypes.map((item, index) => (
+              <div key={index} className="waste-item-row">
+                <div className="form-group">
+                  <label className="form-label">Waste Type</label>
+                  <select
+                    value={item.type}
+                    onChange={(e) => updateWasteType(index, 'type', e.target.value)}
+                    className="form-input"
+                    required
+                  >
+                    <option value="">Select waste type</option>
+                    {wasteTypes.map(type => (
+                      <option key={type.value} value={type.value}>
+                        {type.label} ({type.points} pts/kg)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Estimated Weight (kg)</label>
+                  <input
+                    type="number"
+                    value={item.estimatedWeight}
+                    onChange={(e) => updateWasteType(index, 'estimatedWeight', e.target.value)}
+                    className="form-input"
+                    step="0.1"
+                    min="0.1"
+                    max="100"
+                    placeholder="Enter weight"
+                    required
+                  />
+                </div>
+                
+                {pickupForm.wasteTypes.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn-remove"
+                    onClick={() => removeWasteType(index)}
+                  >
+                    ✕
+                  </button>
                 )}
               </div>
+            ))}
+            
+            <button
+              type="button"
+              className="btn-add-waste"
+              onClick={addWasteType}
+            >
+              + Add Another Waste Type
+            </button>
+          </div>
 
+          {/* Address Section with Auto Detect */}
+          <div className="form-section">
+            <div className="address-header">
+              <h3>📍 Pickup Address</h3>
+              <button
+                type="button"
+                className="btn-detect-location"
+                onClick={detectCurrentLocation}
+                disabled={detectingLocation}
+              >
+                {detectingLocation ? '📍 Detecting...' : '📍 Detect My Location'}
+              </button>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Street Address *</label>
+              <input
+                type="text"
+                value={pickupForm.address.street}
+                onChange={(e) => handlePickupChange(e, 'address', 'street')}
+                className="form-input"
+                placeholder="House/Flat No., Street, Area"
+                required
+              />
+            </div>
+            
+            <div className="form-row">
               <div className="form-group">
-                <label htmlFor="date" className="form-label">
-                  Date
-                </label>
+                <label className="form-label">City *</label>
                 <input
-                  type="date"
-                  id="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
+                  type="text"
+                  value={pickupForm.address.city}
+                  onChange={(e) => handlePickupChange(e, 'address', 'city')}
                   className="form-input"
+                  placeholder="City"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Pincode *</label>
+                <input
+                  type="text"
+                  value={pickupForm.address.pincode}
+                  onChange={(e) => handlePickupChange(e, 'address', 'pincode')}
+                  className="form-input"
+                  placeholder="6-digit pincode"
+                  maxLength="6"
+                  required
                 />
               </div>
             </div>
-
+            
             <div className="form-group">
-              <label htmlFor="location" className="form-label">
-                Location (Optional)
-              </label>
+              <label className="form-label">Landmark (Optional)</label>
               <input
                 type="text"
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
+                value={pickupForm.address.landmark}
+                onChange={(e) => handlePickupChange(e, 'address', 'landmark')}
                 className="form-input"
-                placeholder="e.g., Home, Office"
+                placeholder="Nearby landmark"
               />
             </div>
-
-            <div className="form-group">
-              <label htmlFor="description" className="form-label">
-                Additional Notes (Optional)
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Any additional information..."
-                rows="3"
-              />
-            </div>
-
-            <div className="points-preview">
-              <span className="points-label">Estimated Points:</span>
-              <span className="points-value">{calculatePoints()}</span>
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary submit-btn"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Recycling'}
-            </button>
-          </form>
-        </div>
-
-        <div className="recycling-info card">
-          <h3>📋 Recycling Guidelines</h3>
-          <ul className="guidelines-list">
-            <li>✅ Clean and dry items before recycling</li>
-            <li>✅ Separate different waste types</li>
-            <li>✅ Remove non-recyclable parts</li>
-            <li>❌ No food contamination</li>
-            <li>❌ No hazardous materials</li>
-          </ul>
-
-          <h3>💰 Points per kg</h3>
-          <div className="points-table">
-            <div className="point-row"><span>E-waste:</span> <span>100 pts</span></div>
-            <div className="point-row"><span>Batteries:</span> <span>150 pts</span></div>
-            <div className="point-row"><span>Metal:</span> <span>25 pts</span></div>
-            <div className="point-row"><span>Plastic:</span> <span>10 pts</span></div>
-            <div className="point-row"><span>Paper:</span> <span>8 pts</span></div>
           </div>
-        </div>
-      </div>
+
+          {/* Schedule Section */}
+          <div className="form-section">
+            <h3>📅 Schedule Pickup</h3>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Preferred Date *</label>
+                <input
+                  type="date"
+                  value={pickupForm.preferredDate}
+                  onChange={(e) => handlePickupChange(e, null, 'preferredDate')}
+                  className="form-input"
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Time Slot *</label>
+                <select
+                  value={pickupForm.preferredTimeSlot}
+                  onChange={(e) => handlePickupChange(e, null, 'preferredTimeSlot')}
+                  className="form-input"
+                  required
+                >
+                  {timeSlots.map(slot => (
+                    <option key={slot.value} value={slot.value}>
+                      {slot.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Special Instructions */}
+          <div className="form-section">
+            <h3>📝 Special Instructions</h3>
+            <textarea
+              value={pickupForm.specialInstructions}
+              onChange={(e) => handlePickupChange(e, null, 'specialInstructions')}
+              className="form-input"
+              rows="3"
+              placeholder="Any special instructions for pickup? (e.g., gate code, floor number, etc.)"
+            />
+          </div>
+
+          {/* Points Preview */}
+          <div className="points-preview-card">
+            <div className="preview-header">
+              <span>🌟 Estimated Reward</span>
+            </div>
+            <div className="preview-details">
+              <div className="preview-item">
+                <span>Total Weight:</span>
+                <strong>{calculateTotalWeight()} kg</strong>
+              </div>
+              <div className="preview-item">
+                <span>Estimated Points:</span>
+                <strong className="points-highlight">{calculateTotalEstimatedPoints()} pts</strong>
+              </div>
+            </div>
+            <p className="preview-note">
+              ⚠️ Final points will be awarded after actual weight verification at pickup
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            className="btn-submit-pickup"
+            disabled={loading}
+          >
+            {loading ? 'Submitting Request...' : '🚛 Request Pickup'}
+          </button>
+        </form>
+      )}
+
+      {/* Redeem Modal */}
+      {showRedeemModal && (
+        <RedeemCode
+          onSuccess={handleCodeRedeemed}
+          onClose={() => setShowRedeemModal(false)}
+        />
+      )}
     </div>
   );
 }

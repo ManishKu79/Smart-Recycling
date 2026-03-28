@@ -24,7 +24,7 @@ function Navbar() {
         <div className="navbar-brand">
           <Link to="/" className="navbar-logo">
             <span className="logo-icon">♻️</span>
-            <span className="logo-text">SmartRecycle</span>
+            <span>SmartRecycle</span>
           </Link>
         </div>
 
@@ -79,12 +79,17 @@ function Navbar() {
                   </>
                 )}
 
-                {/* Admin Menu */}
+                {/* Admin Menu - Pickups added, Settings changed to System */}
                 {user?.role === 'admin' && (
                   <>
                     <li className="nav-item">
                       <Link to="/admin/dashboard" className="nav-link admin-link" onClick={() => setIsMenuOpen(false)}>
                         Dashboard
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link to="/admin/pickups" className="nav-link admin-link" onClick={() => setIsMenuOpen(false)}>
+                        Pickups
                       </Link>
                     </li>
                     <li className="nav-item">
@@ -102,6 +107,11 @@ function Navbar() {
                         Rewards
                       </Link>
                     </li>
+                    {/* <li className="nav-item">
+                      <Link to="/admin/settings" className="nav-link admin-link" onClick={() => setIsMenuOpen(false)}>
+                        System
+                      </Link>
+                    </li> */}
                   </>
                 )}
 

@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const smartBinRoutes = require('./routes/smartBinRoutes');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -14,6 +15,7 @@ const userRoutes = require('./routes/userRoutes');
 const recycleRoutes = require('./routes/recycleRoutes');
 const rewardsRoutes = require('./routes/rewardsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const pickupRoutes = require('./routes/pickupRoutes');
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/recycle', recycleRoutes);
 app.use('/api/rewards', rewardsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/smartbin', smartBinRoutes);
+app.use('/api/pickup', pickupRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

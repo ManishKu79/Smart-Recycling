@@ -1,21 +1,30 @@
-// frontend/src/pages/user/UserRewards.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import RedeemModal from '../../components/RedeemModal';
+import SuccessModal from '../../components/SuccessModal';
 import './UserRewards.css';
 
 function UserRewards() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [points, setPoints] = useState(0);
   const [rewards, setRewards] = useState([]);
   const [redemptions, setRedemptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  
+  // Modal states
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [selectedReward, setSelectedReward] = useState(null);
+  const [lastRedemption, setLastRedemption] = useState(null);
 
   const categories = [
-    { id: 'all', name: 'All Rewards' },
-    { id: 'eco-products', name: 'Eco Products' },
-    { id: 'vouchers', name: 'Vouchers' },
-    { id: 'eco-actions', name: 'Eco Actions' },
-    { id: 'education', name: 'Education' }
+    { id: 'all', name: 'All Rewards', icon: '🎁' },
+    { id: 'eco-products', name: 'Eco Products', icon: '🌱' },
+    { id: 'vouchers', name: 'Vouchers', icon: '🎫' },
+    { id: 'eco-actions', name: 'Eco Actions', icon: '🌍' },
+    { id: 'education', name: 'Education', icon: '📚' }
   ];
 
   useEffect(() => {
@@ -30,10 +39,10 @@ function UserRewards() {
       setPoints(pointsData.points.balance);
       
       const rewardsData = await api.getRewardsCatalog(selectedCategory);
-      setRewards(rewardsData.rewards);
+      setRewards(rewardsData.rewards || []);
       
       const historyData = await api.getUserRedemptions();
-      setRedemptions(historyData.redemptions);
+      setRedemptions(historyData.redemptions || []);
       
     } catch (error) {
       console.error('Failed to load rewards:', error);
@@ -42,22 +51,42 @@ function UserRewards() {
     }
   };
 
-  const handleRedeem = async (reward) => {
-    if (points < reward.points) {
-      alert(`❌ You need ${reward.points - points} more points`);
-      return;
-    }
+  const handleRedeemClick = (reward) => {
+    setSelectedReward(reward);
+    setShowRedeemModal(true);
+  };
 
-    const confirm = window.confirm(`Redeem ${reward.name} for ${reward.points} points?`);
-    if (!confirm) return;
-
+  const handleConfirmRedeem = async (rewardId, quantity) => {
     try {
-      const result = await api.redeemReward(reward.id);
-      alert(`✅ Success! Your code: ${result.redemption.redemptionCode}`);
-      loadRewardsData();
+      const result = await api.redeemReward(rewardId, quantity);
+      
+      setLastRedemption({
+        rewardName: result.redemption.rewardName,
+        redemptionCode: result.redemption.redemptionCode,
+        pointsSpent: result.redemption.pointsSpent,
+        remainingPoints: points - result.redemption.pointsSpent
+      });
+      
+      setShowRedeemModal(false);
+      setShowSuccessModal(true);
+      
+      // Refresh points and redemptions
+      const pointsData = await api.getUserPoints();
+      setPoints(pointsData.points.balance);
+      
+      const historyData = await api.getUserRedemptions();
+      setRedemptions(historyData.redemptions || []);
+      
     } catch (error) {
       alert('❌ Redemption failed: ' + error.message);
     }
+  };
+
+  const handleViewMyRewards = () => {
+    setShowSuccessModal(false);
+    // Navigate to My Rewards page (you can create this later)
+    // For now, just scroll to recent redemptions
+    document.getElementById('recent-redemptions')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (loading) {
@@ -76,16 +105,21 @@ function UserRewards() {
         <p>Redeem your points for amazing eco-friendly rewards</p>
       </div>
 
-      <div className="points-card card">
+      {/* Points Card */}
+      <div className="points-card">
         <div className="points-info">
           <span className="points-label">Your Points Balance</span>
           <span className="points-value">{points}</span>
         </div>
-        <button className="btn btn-secondary" onClick={() => window.location.href = '/user/history'}>
+        <button 
+          className="view-history-btn" 
+          onClick={() => navigate('/user/history')}
+        >
           View History
         </button>
       </div>
 
+      {/* Categories & Rewards Grid */}
       <div className="rewards-container">
         <div className="categories-sidebar">
           <h3>Categories</h3>
@@ -96,7 +130,8 @@ function UserRewards() {
                 className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
                 onClick={() => setSelectedCategory(category.id)}
               >
-                {category.name}
+                <span className="category-icon">{category.icon}</span>
+                <span>{category.name}</span>
               </button>
             ))}
           </div>
@@ -104,22 +139,22 @@ function UserRewards() {
 
         <div className="rewards-grid">
           {rewards.map(reward => (
-            <div key={reward.id} className="reward-card card">
+            <div key={reward.id} className="reward-card">
               <div className="reward-header">
                 <span className="reward-category">{reward.category}</span>
                 <span className="reward-stock">Stock: {reward.stock}</span>
               </div>
               
               <div className="reward-content">
-                <div className="reward-icon">{reward.icon}</div>
+                <div className="reward-icon">{reward.icon || '🎁'}</div>
                 <h3>{reward.name}</h3>
                 <p className="reward-description">{reward.description}</p>
                 <div className="reward-points">{reward.points} points</div>
               </div>
               
               <button
-                className={`btn ${points >= reward.points ? 'btn-primary' : 'btn-secondary'}`}
-                onClick={() => handleRedeem(reward)}
+                className={`redeem-btn ${points >= reward.points ? 'redeem-btn-primary' : 'redeem-btn-secondary'}`}
+                onClick={() => handleRedeemClick(reward)}
                 disabled={points < reward.points}
               >
                 {points >= reward.points ? 'Redeem Now' : 'Insufficient Points'}
@@ -135,21 +170,46 @@ function UserRewards() {
         </div>
       </div>
 
+      {/* Recent Redemptions Section */}
       {redemptions.length > 0 && (
-        <div className="recent-redemptions card">
+        <div id="recent-redemptions" className="recent-redemptions">
           <h3>Recent Redemptions</h3>
           <div className="redemptions-list">
             {redemptions.slice(0, 5).map(red => (
               <div key={red.id} className="redemption-item">
-                <span className="redemption-name">{red.rewardName}</span>
-                <span className="redemption-points">-{red.pointsSpent}</span>
-                <span className="redemption-date">
-                  {new Date(red.createdAt).toLocaleDateString()}
-                </span>
+                <div className="redemption-info">
+                  <span className="redemption-icon">{red.rewardIcon || '🎁'}</span>
+                  <span className="redemption-name">{red.rewardName}</span>
+                </div>
+                <div className="redemption-details">
+                  <span className="redemption-points">-{red.pointsSpent} pts</span>
+                  <span className="redemption-code">{red.redemptionCode}</span>
+                  <span className="redemption-date">
+                    {new Date(red.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </div>
+      )}
+
+      {/* Modals */}
+      {showRedeemModal && selectedReward && (
+        <RedeemModal
+          reward={selectedReward}
+          userPoints={points}
+          onClose={() => setShowRedeemModal(false)}
+          onConfirm={handleConfirmRedeem}
+        />
+      )}
+
+      {showSuccessModal && lastRedemption && (
+        <SuccessModal
+          redemption={lastRedemption}
+          onClose={() => setShowSuccessModal(false)}
+          onViewRewards={handleViewMyRewards}
+        />
       )}
     </div>
   );

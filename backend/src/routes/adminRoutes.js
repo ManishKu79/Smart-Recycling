@@ -1,6 +1,15 @@
 // src/routes/adminRoutes.js
 const express = require('express');
-const { 
+
+const {
+  getAllPickups,
+  assignPickup,
+  completePickup,
+  cancelPickupAdmin,
+  getPickupStats
+} = require('../controllers/pickupController');
+
+const {
   getStats,
   getSubmissions,
   approveSubmission,
@@ -12,29 +21,47 @@ const {
   updateReward,
   deleteReward
 } = require('../controllers/adminController');
+
 const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// All admin routes require authentication and admin role
 router.use(protect, admin);
 
-// Dashboard
-router.get('/stats', getStats);
+// ================= SAFE WRAPPER =================
+const safe = (fn) => (req, res, next) => {
+  if (typeof fn !== 'function') {
+    return res.status(500).json({
+      success: false,
+      error: 'Route handler undefined'
+    });
+  }
+  return fn(req, res, next);
+};
 
-// Submissions
-router.get('/submissions', getSubmissions);
-router.put('/submissions/:id/approve', approveSubmission);
-router.put('/submissions/:id/reject', rejectSubmission);
+// ================= DASHBOARD =================
+router.get('/stats', safe(getStats));
 
-// Users
-router.get('/users', getUsers);
-router.put('/users/:id/role', updateUserRole);
-router.put('/users/:id/toggle-status', toggleUserStatus);
+// ================= PICKUPS =================
+router.get('/pickups', safe(getAllPickups));
+router.get('/pickups/stats', safe(getPickupStats));
+router.put('/pickups/:id/assign', safe(assignPickup));
+router.put('/pickups/:id/complete', safe(completePickup));
+router.put('/pickups/:id/cancel', safe(cancelPickupAdmin));
 
-// Rewards
-router.post('/rewards', createReward);
-router.put('/rewards/:id', updateReward);
-router.delete('/rewards/:id', deleteReward);
+// ================= SUBMISSIONS =================
+router.get('/submissions', safe(getSubmissions));
+router.put('/submissions/:id/approve', safe(approveSubmission));
+router.put('/submissions/:id/reject', safe(rejectSubmission));
+
+// ================= USERS =================
+router.get('/users', safe(getUsers));
+router.put('/users/:id/role', safe(updateUserRole));
+router.put('/users/:id/toggle-status', safe(toggleUserStatus));
+
+// ================= REWARDS =================
+router.post('/rewards', safe(createReward));
+router.put('/rewards/:id', safe(updateReward));
+router.delete('/rewards/:id', safe(deleteReward));
 
 module.exports = router;

@@ -1,0 +1,176 @@
+.success-modal-container {
+  background: white;
+  border-radius: 24px;
+  max-width: 450px;
+  width: 90%;
+  padding: 35px;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 0.5s ease;
+}
+
+.success-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+.success-message strong {
+  color: #1f2937;
+}
+
+.code-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.code-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #92400e;
+  margin-bottom: 10px;
+}
+
+.code-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+  word-break: break-all;
+  color: #065f46;
+}
+
+.btn-copy {
+  background: white;
+  border: 1px solid #f59e0b;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #92400e;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-copy:hover {
+  background: #f59e0b;
+  color: white;
+}
+
+.points-summary-success {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.points-summary-success .points-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.text-green {
+  color: #10b981;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.redemption-instruction {
+  background: #f3f4f6;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.modal-actions-success {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-view-rewards, .btn-done {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-view-rewards {
+  background: #10b981;
+  color: white;
+}
+
+.btn-view-rewards:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.btn-done {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-done:hover {
+  background: #e5e7eb;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@media (max-width: 768px) {
+  .success-modal-container {
+    padding: 25px;
+  }
+  
+  .success-title {
+    font-size: 1.4rem;
+  }
+  
+  .code-value {
+    font-size: 0.9rem;
+  }
+  
+  .modal-actions-success {
+    flex-direction: column;
+  }
+  
+  .btn-view-rewards, .btn-done {
+    width: 100%;
+  }
+}

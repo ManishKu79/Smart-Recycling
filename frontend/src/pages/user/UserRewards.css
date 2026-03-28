@@ -1,16 +1,37 @@
 /* frontend/src/pages/user/UserRewards.css */
+
 .user-rewards {
   padding: 20px 0;
 }
 
+/* Page Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  color: #1f2937;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Points Card */
 .points-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px;
+  padding: 25px 30px;
   margin-bottom: 30px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .points-info {
@@ -30,47 +51,75 @@
   line-height: 1;
 }
 
+.view-history-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.view-history-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Rewards Container */
 .rewards-container {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 250px 1fr;
   gap: 30px;
   margin-bottom: 40px;
 }
 
+/* Categories Sidebar */
 .categories-sidebar {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 25px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   height: fit-content;
+  position: sticky;
+  top: 100px;
 }
 
 .categories-sidebar h3 {
   color: #1f2937;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   font-size: 1.1rem;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .categories-list {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
 }
 
 .category-btn {
-  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
   border: none;
   background: none;
   text-align: left;
   font-size: 14px;
+  font-weight: 500;
   color: #374151;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .category-btn:hover {
   background: #f3f4f6;
+  color: #10b981;
 }
 
 .category-btn.active {
@@ -78,23 +127,33 @@
   color: white;
 }
 
-.rewards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+.category-icon {
+  font-size: 18px;
 }
 
+/* Rewards Grid */
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+/* Reward Card */
 .reward-card {
   display: flex;
   flex-direction: column;
-  padding: 25px;
-  border: 2px solid transparent;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
+  height: 100%;
 }
 
 .reward-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   border-color: #10b981;
-  transform: translateY(-4px);
 }
 
 .reward-header {
@@ -102,20 +161,21 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-  font-size: 0.8rem;
 }
 
 .reward-category {
   background: #fef3c7;
   color: #92400e;
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .reward-stock {
   color: #6b7280;
+  font-size: 0.75rem;
 }
 
 .reward-content {
@@ -133,91 +193,227 @@
   color: #1f2937;
   margin-bottom: 10px;
   font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .reward-description {
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 15px;
   line-height: 1.4;
 }
 
 .reward-points {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #10b981;
+  margin-top: 10px;
 }
 
+.redeem-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 15px;
+}
+
+.redeem-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.redeem-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.redeem-btn-secondary {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* No Rewards */
 .no-rewards {
   grid-column: 1 / -1;
   text-align: center;
   padding: 60px;
   color: #9ca3af;
+  background: #f9fafb;
+  border-radius: 20px;
 }
 
+/* Recent Redemptions */
 .recent-redemptions {
+  margin-top: 40px;
   padding: 25px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .recent-redemptions h3 {
   color: #1f2937;
   margin-bottom: 20px;
+  font-size: 1.2rem;
 }
 
 .redemptions-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .redemption-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
+  padding: 15px;
   background: #f9fafb;
-  border-radius: 8px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.redemption-item:hover {
+  background: #f3f4f6;
+}
+
+.redemption-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.redemption-icon {
+  font-size: 24px;
 }
 
 .redemption-name {
-  flex: 1;
-  color: #374151;
-  font-weight: 500;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.redemption-details {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .redemption-points {
   color: #ef4444;
   font-weight: 600;
-  margin-right: 20px;
+}
+
+.redemption-code {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #10b981;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .redemption-date {
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
 @media (max-width: 1024px) {
   .rewards-container {
     grid-template-columns: 1fr;
   }
   
   .categories-sidebar {
+    position: static;
     order: 2;
+  }
+  
+  .categories-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .category-btn {
+    width: auto;
+    padding: 10px 16px;
   }
 }
 
 @media (max-width: 768px) {
+  .points-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
   .points-value {
     font-size: 2rem;
+  }
+  
+  .rewards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
   }
   
   .redemption-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
   }
   
-  .redemption-points {
-    margin-right: 0;
+  .redemption-details {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .rewards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reward-card {
+    padding: 15px;
+  }
+  
+  .reward-icon {
+    font-size: 36px;
+  }
+  
+  .reward-card h3 {
+    font-size: 1rem;
   }
 }

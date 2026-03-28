@@ -213,7 +213,337 @@
   font-weight: 600;
   color: #374151;
 }
+/* Add these styles to your existing UserDashboard.css */
 
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.dashboard-header h1 {
+  color: #1f2937;
+  margin-bottom: 5px;
+  font-size: 1.8rem;
+}
+
+.dashboard-header p {
+  color: #6b7280;
+}
+
+.btn-redeem-code {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-redeem-code:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Pickup Requests Section */
+.pickup-requests-section {
+  margin-bottom: 30px;
+  padding: 25px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.2rem;
+}
+
+.btn-new-pickup {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-new-pickup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.no-pickups {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.no-pickups .hint {
+  font-size: 0.85rem;
+  margin-top: 10px;
+  color: #9ca3af;
+}
+
+.pickup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pickup-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  background: #f9fafb;
+  transition: all 0.3s;
+}
+
+.pickup-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #10b981;
+}
+
+.pickup-item.pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.pickup-item.assigned {
+  border-left: 4px solid #3b82f6;
+}
+
+.pickup-item.completed {
+  border-left: 4px solid #10b981;
+}
+
+.pickup-item.cancelled {
+  border-left: 4px solid #ef4444;
+  opacity: 0.7;
+}
+
+.pickup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pickup-tracking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.tracking-label {
+  color: #6b7280;
+}
+
+.tracking-code {
+  font-family: monospace;
+  font-weight: 700;
+  color: #10b981;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  letter-spacing: 1px;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-badge.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-assigned {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.status-picked {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.status-badge.status-completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.status-cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.pickup-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pickup-waste ul {
+  margin: 5px 0 0 20px;
+  padding: 0;
+}
+
+.pickup-waste li {
+  margin: 3px 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.pickup-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.pickup-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pickup-info strong {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.pickup-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.actual-weight, .points-earned {
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actual-weight {
+  background: #f3f4f6;
+}
+
+.points-earned {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.points-earned span {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.btn-cancel-pickup {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  align-self: flex-start;
+}
+
+.btn-cancel-pickup:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+.assigned-message {
+  background: #dbeafe;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.loading-small {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pickup-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .pickup-info {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .btn-new-pickup {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .btn-cancel-pickup {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .btn-redeem-code {
+    width: 100%;
+    justify-content: center;
+  }
+}
 @media (max-width: 1024px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
