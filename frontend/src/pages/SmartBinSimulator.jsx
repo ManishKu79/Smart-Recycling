@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// frontend/src/pages/SmartBinSimulator.jsx
+import React, { useState, useEffect } from 'react';
 import './SmartBinSimulator.css';
 
 function SmartBinSimulator() {
@@ -10,6 +11,17 @@ function SmartBinSimulator() {
   const [generatedCode, setGeneratedCode] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Hide navbar when this page mounts
+  useEffect(() => {
+    // Add a class to body to hide navbar
+    document.body.classList.add('hide-navbar');
+    
+    // Cleanup: remove class when component unmounts
+    return () => {
+      document.body.classList.remove('hide-navbar');
+    };
+  }, []);
 
   const wasteTypes = [
     { value: 'plastic', label: 'Plastic', points: 10, icon: '♻️', color: '#10b981', description: 'Bottles, containers, packaging' },
@@ -98,14 +110,12 @@ function SmartBinSimulator() {
   return (
     <div className="smartbin-simulator">
       <div className="simulator-container">
-        {/* Header Section */}
         <div className="simulator-header">
           <div className="bin-icon">🗑️♻️</div>
           <h1>SmartRecycle Bin</h1>
           <p>Drop your recyclables and get your reward code</p>
         </div>
 
-        {/* Form Section */}
         {step === 'form' && (
           <div className="simulator-card">
             <form onSubmit={handleSubmit}>
@@ -163,18 +173,13 @@ function SmartBinSimulator() {
                 </div>
               )}
 
-              <button
-                type="submit"
-                className="btn-generate"
-                disabled={loading}
-              >
+              <button type="submit" className="btn-generate" disabled={loading}>
                 {loading ? 'Generating Code...' : 'Generate Receipt Code'}
               </button>
             </form>
           </div>
         )}
 
-        {/* Receipt Section */}
         {step === 'receipt' && generatedCode && (
           <div className="receipt-card">
             <div className="receipt-header">
@@ -228,14 +233,14 @@ function SmartBinSimulator() {
 
               <div className="receipt-message">
                 <p>✨ Keep this code safe! ✨</p>
-                <p>Visit <strong>SmartRecycle Website</strong> → Click <strong>"Redeem Smart Bin Code"</strong></p>
+                <p>Go to <strong>SmartRecycle Website → Recycle → Smart Bin Code</strong></p>
                 <p>Enter this code to claim your points!</p>
               </div>
 
               <div className="receipt-qr-placeholder">
                 <div className="qr-simulate">
                   <span>📱</span>
-                  <span>Scan to redeem</span>
+                  <span>Visit website to redeem</span>
                 </div>
               </div>
             </div>

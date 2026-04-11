@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   },
   points: {
     type: Number,
-    default: 100 // Welcome bonus
+    default: 100
   },
   totalRecycled: {
     type: Number,
@@ -61,12 +61,24 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'collector'],
     default: 'user'
   },
   isActive: {
     type: Boolean,
     default: true
+  },
+  assignedZone: {
+    type: String,
+    default: ''
+  },
+  totalPickupsCompleted: {
+    type: Number,
+    default: 0
+  },
+  averageRating: {
+    type: Number,
+    default: 0
   },
   lastActive: {
     type: Date,
@@ -80,7 +92,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
@@ -93,12 +104,10 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Update streak method
 userSchema.methods.updateStreak = async function() {
   const today = new Date().setHours(0, 0, 0, 0);
   const lastActive = new Date(this.lastActive).setHours(0, 0, 0, 0);
@@ -117,7 +126,6 @@ userSchema.methods.updateStreak = async function() {
   await this.save();
 };
 
-// Remove password from JSON
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id;

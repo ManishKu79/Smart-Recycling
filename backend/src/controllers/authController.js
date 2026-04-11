@@ -1,7 +1,7 @@
 // src/controllers/authController.js
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs'); // Add this for direct testing
+const bcrypt = require('bcryptjs');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -40,10 +40,14 @@ const register = async (req, res) => {
     // Generate token
     const token = generateToken(user.id);
 
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
     res.status(201).json({
       success: true,
       token,
-      user
+      user: userResponse
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -54,110 +58,85 @@ const register = async (req, res) => {
   }
 };
 
-// @desc    Login user - DEBUG VERSION
+// @desc    Login user - FIXED VERSION
 // @route   POST /api/auth/login
 // @access  Public
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log('\n' + '='.repeat(60));
-    console.log('🔍 LOGIN ATTEMPT');
-    console.log('='.repeat(60));
-    console.log('📧 Email:', email);
-    console.log('🔑 Password received (length):', password.length);
-    console.log('🔑 Password first character:', password[0]);
-    console.log('='.repeat(60));
+    console.log('🔍 Login attempt for:', email);
 
-    // STEP 1: Find user with password field
-    console.log('\n📡 Querying database for user...');
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Please provide email and password' 
+      });
+    }
+
+    // Find user with password field
     const user = await User.findOne({ email }).select('+password');
     
     if (!user) {
-      console.log('❌ USER NOT FOUND in database');
+      console.log('❌ User not found:', email);
       return res.status(401).json({ 
         success: false, 
         error: 'Invalid credentials' 
       });
     }
 
-    console.log('✅ USER FOUND:');
-    console.log('   ID:', user._id);
-    console.log('   Name:', user.fullName);
-    console.log('   Email:', user.email);
-    console.log('   Role:', user.role);
-    console.log('   Hashed Password:', user.password);
-    console.log('   Is Active:', user.isActive);
+    console.log('✅ User found:', user.email);
 
-    // STEP 2: Check if account is active
+    // Check if account is active
     if (!user.isActive) {
-      console.log('❌ ACCOUNT IS DEACTIVATED');
+      console.log('❌ Account deactivated');
       return res.status(401).json({ 
         success: false, 
         error: 'Account is deactivated. Please contact admin.' 
       });
     }
 
-    // STEP 3: Test password comparison directly with bcrypt
-    console.log('\n🔐 TESTING PASSWORD COMPARISON:');
-    console.log('   Input password:', password);
-    console.log('   Stored hash:', user.password);
-    
-    // Method 1: Using model method
-    console.log('\n📝 Method 1: Using user.comparePassword()');
+    // Check password
     const isMatch = await user.comparePassword(password);
-    console.log('   Result:', isMatch);
+    console.log('🔐 Password match:', isMatch);
 
-    // Method 2: Direct bcrypt comparison (for debugging)
-    console.log('\n📝 Method 2: Direct bcrypt.compare()');
-    const directMatch = await bcrypt.compare(password, user.password);
-    console.log('   Result:', directMatch);
-
-    if (!isMatch || !directMatch) {
-      console.log('\n❌ PASSWORD MISMATCH!');
-      
-      // Generate a test hash for debugging
-      const testHash = await bcrypt.hash('Admin@123', 10);
-      console.log('\n🔧 DEBUG INFO:');
-      console.log('   Test hash for "Admin@123":', testHash);
-      console.log('   Does test hash match stored?', testHash === user.password);
-      
+    if (!isMatch) {
+      console.log('❌ Invalid password');
       return res.status(401).json({ 
         success: false, 
         error: 'Invalid credentials' 
       });
     }
 
-    console.log('\n✅ PASSWORD MATCH SUCCESSFUL!');
+    console.log('✅ Password correct');
 
-    // STEP 4: Update last active
+    // Update last active
     user.lastActive = new Date();
     await user.save();
-    console.log('✅ Last active updated');
 
-    // STEP 5: Generate token
+    // Generate token
     const token = generateToken(user.id);
     console.log('✅ Token generated');
 
-    // STEP 6: Prepare response (remove password)
+    // Prepare response (remove password)
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    console.log('\n🎉 LOGIN SUCCESSFUL!');
-    console.log('   User:', user.email);
-    console.log('   Role:', user.role);
-    console.log('='.repeat(60) + '\n');
+    console.log('🎉 Login successful for:', user.email);
 
-    res.json({
+    // ✅ ENSURE JSON RESPONSE - NO EXTRA TEXT
+    return res.status(200).json({
       success: true,
       token,
       user: userResponse
     });
   } catch (error) {
-    console.error('\n❌ LOGIN ERROR:', error);
-    res.status(500).json({ 
+    console.error('❌ Login ERROR:', error);
+    // ✅ ALWAYS return JSON, never plain text
+    return res.status(500).json({ 
       success: false, 
-      error: 'Server error' 
+      error: 'Server error during login. Please try again.' 
     });
   }
 };
@@ -167,9 +146,19 @@ const login = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
+    // User is already attached by auth middleware
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
+      });
+    }
+
     res.json({ 
       success: true, 
-      user: req.user 
+      user: user.toObject() 
     });
   } catch (error) {
     console.error('Get me error:', error);

@@ -8,38 +8,33 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const smartBinRoutes = require('./routes/smartBinRoutes');
-
-// Import routes
+const collectorRoutes = require('./routes/collectorRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const recycleRoutes = require('./routes/recycleRoutes');
 const rewardsRoutes = require('./routes/rewardsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const pickupRoutes = require('./routes/pickupRoutes');
-
 const app = express();
 
-// Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:3000', 'http://localhost:8000'],
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(morgan('dev'));
 
-// Static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  message: { success: false, error: 'Too many requests, please try again later.' }
 });
 app.use('/api', limiter);
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/recycle', recycleRoutes);
@@ -47,8 +42,7 @@ app.use('/api/rewards', rewardsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/smartbin', smartBinRoutes);
 app.use('/api/pickup', pickupRoutes);
-
-// Health check
+app.use('/api/collector', collectorRoutes);
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -57,23 +51,18 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Error:', err);
   res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Server error'
   });
 });
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('✅ MongoDB connected successfully');
-    
-    // Create admin user if not exists
     await createAdminUser();
-    
     const PORT = process.env.PORT || 8000;
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
@@ -85,17 +74,16 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
   });
 
-// Create admin user function
 async function createAdminUser() {
   try {
     const User = require('./models/User');
     const bcrypt = require('bcryptjs');
     
-    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@smartrecycle.com';
     const adminExists = await User.findOne({ email: adminEmail });
     
     if (!adminExists) {
-      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'Admin@123', 10);
       
       await User.create({
         fullName: 'System Admin',
@@ -107,6 +95,7 @@ async function createAdminUser() {
       });
       
       console.log('✅ Admin user created successfully');
+      console.log(`   Email: ${adminEmail}`);
     }
   } catch (error) {
     console.error('❌ Error creating admin user:', error);

@@ -141,3 +141,17 @@ code {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* Hide navbar on Smart Bin Simulator page */
+body.hide-navbar .navbar {
+  display: none;
+}
+
+body.hide-navbar .main-content {
+  padding-top: 0;
+}
+
+/* Optional: Make simulator take full screen when navbar is hidden */
+body.hide-navbar .smartbin-simulator {
+  min-height: 100vh;
+}

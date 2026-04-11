@@ -22,6 +22,6 @@ router.get('/my-codes', getMyCodes);
 
 // Admin endpoints
 router.get('/admin/codes', admin, getAllCodes);
-router.get('/admin/stats', admin, getStats);
+router.get('/admin/stacats', admin, getStats);
 
 module.exports = router;

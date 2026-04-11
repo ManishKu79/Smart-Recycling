@@ -1,3 +1,4 @@
+// src/models/PickupRequest.js
 const mongoose = require('mongoose');
 
 const pickupRequestSchema = new mongoose.Schema({
@@ -27,22 +28,10 @@ const pickupRequestSchema = new mongoose.Schema({
     default: 0
   },
   address: {
-    street: {
-      type: String,
-      default: ''
-    },
-    city: {
-      type: String,
-      default: ''
-    },
-    pincode: {
-      type: String,
-      default: ''
-    },
-    landmark: {
-      type: String,
-      default: ''
-    }
+    street: { type: String, default: '' },
+    city: { type: String, default: '' },
+    pincode: { type: String, default: '' },
+    landmark: { type: String, default: '' }
   },
   preferredDate: {
     type: Date,
@@ -60,7 +49,7 @@ const pickupRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'assigned', 'picked_up', 'verified', 'completed', 'cancelled'],
+    enum: ['pending', 'assigned', 'picked_up', 'verified', 'completed', 'cancelled', 'rescheduled'],
     default: 'pending'
   },
   assignedTo: {
@@ -84,18 +73,37 @@ const pickupRequestSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  scheduledAt: {
-    type: Date
-  },
-  pickedUpAt: {
-    type: Date
-  },
-  verifiedAt: {
-    type: Date
-  },
-  completedAt: {
-    type: Date
-  }
+  
+  // NEW FIELDS FOR PRIORITY FEATURES
+  
+  // Collector Info
+  collectorName: { type: String, default: '' },
+  collectorPhone: { type: String, default: '' },
+  estimatedArrivalTime: { type: Date, default: null },
+  
+  // Rating & Feedback
+  rating: { type: Number, min: 1, max: 5, default: null },
+  feedback: { type: String, maxlength: 500, default: '' },
+  feedbackSubmittedAt: { type: Date, default: null },
+  
+  // Reschedule History
+  rescheduleHistory: [{
+    oldDate: Date,
+    newDate: Date,
+    reason: String,
+    requestedAt: Date,
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  }],
+  
+  // Reminder Tracking
+  reminderSent: { type: Boolean, default: false },
+  reminderSentAt: { type: Date, default: null },
+  
+  // Timestamps
+  scheduledAt: { type: Date },
+  pickedUpAt: { type: Date },
+  verifiedAt: { type: Date },
+  completedAt: { type: Date }
 }, {
   timestamps: true
 });
@@ -115,6 +123,7 @@ pickupRequestSchema.pre('save', function(next) {
 pickupRequestSchema.index({ userId: 1, status: 1 });
 pickupRequestSchema.index({ trackingCode: 1 }, { unique: true, sparse: true });
 pickupRequestSchema.index({ status: 1 });
+pickupRequestSchema.index({ preferredDate: 1 });
 
 pickupRequestSchema.set('toJSON', {
   transform: (doc, ret) => {

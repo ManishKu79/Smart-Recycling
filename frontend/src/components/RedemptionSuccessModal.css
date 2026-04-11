@@ -1,0 +1,201 @@
+/* frontend/src/components/RedemptionSuccessModal.css */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  animation: fadeIn 0.3s ease;
+}
+
+.success-modal {
+  background: white;
+  border-radius: 24px;
+  max-width: 450px;
+  width: 90%;
+  padding: 35px;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  text-align: center;
+}
+
+.success-animation {
+  margin-bottom: 20px;
+}
+
+.success-checkmark {
+  width: 80px;
+  height: 80px;
+  background: #10b981;
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  animation: bounce 0.5s ease;
+}
+
+.success-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+.success-message strong {
+  color: #10b981;
+}
+
+.success-code-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.code-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #92400e;
+  margin-bottom: 10px;
+}
+
+.code-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+  word-break: break-all;
+  color: #065f46;
+}
+
+.btn-copy-code {
+  background: white;
+  border: 1px solid #f59e0b;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #92400e;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-copy-code:hover {
+  background: #f59e0b;
+  color: white;
+}
+
+.success-points-summary {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.success-points-summary .points-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.points-spent {
+  color: #ef4444;
+}
+
+.points-remaining {
+  color: #10b981;
+  font-size: 1.1rem;
+}
+
+.success-instruction {
+  background: #f3f4f6;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.success-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-view-rewards, .btn-done {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-view-rewards {
+  background: #10b981;
+  color: white;
+}
+
+.btn-view-rewards:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.btn-done {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-done:hover {
+  background: #e5e7eb;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@media (max-width: 768px) {
+  .success-modal {
+    padding: 25px;
+  }
+  
+  .success-title {
+    font-size: 1.2rem;
+  }
+  
+  .code-value {
+    font-size: 0.9rem;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+  }
+}

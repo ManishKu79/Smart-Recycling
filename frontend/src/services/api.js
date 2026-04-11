@@ -50,7 +50,6 @@ class ApiService {
     }
   }
 
-  // ============ AUTHENTICATION ============
   async login(email, password) {
     const data = await this.request('/auth/login', {
       method: 'POST',
@@ -82,27 +81,25 @@ class ApiService {
       this.clearToken();
     }
   }
-  // ============ SMART BIN CODE ============
-async verifySmartBinCode(code) {
-  return this.request('/smartbin/verify', {
-    method: 'POST',
-    body: JSON.stringify({ code })
-  });
-}
 
-async redeemSmartBinCode(code) {
-  return this.request('/smartbin/redeem', {
-    method: 'POST',
-    body: JSON.stringify({ code })
-  });
-}
+  async verifySmartBinCode(code) {
+    return this.request('/smartbin/verify', {
+      method: 'POST',
+      body: JSON.stringify({ code })
+    });
+  }
 
-async getMySmartBinCodes() {
-  return this.request('/smartbin/my-codes');
-}
+  async redeemSmartBinCode(code) {
+    return this.request('/smartbin/redeem', {
+      method: 'POST',
+      body: JSON.stringify({ code })
+    });
+  }
 
+  async getMySmartBinCodes() {
+    return this.request('/smartbin/my-codes');
+  }
 
-  // ============ USER PROFILE ============
   async updateProfile(profileData) {
     const data = await this.request('/user/profile', {
       method: 'PUT',
@@ -119,7 +116,6 @@ async getMySmartBinCodes() {
     });
   }
 
-  // ============ RECYCLING ============
   async detectWaste(file) {
     const formData = new FormData();
     formData.append('image', file);
@@ -151,30 +147,47 @@ async getMySmartBinCodes() {
   async getUserStats() {
     return this.request('/recycle/stats');
   }
-  // ============ PICKUP REQUESTS ============
-async createPickupRequest(data) {
-  return this.request('/pickup/request', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  });
-}
 
-async getMyPickupRequests() {
-  return this.request('/pickup/my-requests');
-}
+  async createPickupRequest(data) {
+    return this.request('/pickup/request', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
 
-async cancelPickupRequest(id, reason) {
-  return this.request(`/pickup/${id}/cancel`, {
-    method: 'PUT',
-    body: JSON.stringify({ reason })
-  });
-}
+  async getMyPickupRequests() {
+    return this.request('/pickup/my-requests');
+  }
 
-async trackPickupRequest(id) {
-  return this.request(`/pickup/track/${id}`);
-}
+  async cancelPickupRequest(id, reason) {
+    return this.request(`/pickup/${id}/cancel`, {
+      method: 'PUT',
+      body: JSON.stringify({ reason })
+    });
+  }
 
-  // ============ USER DASHBOARD ============
+  async trackPickupRequest(id) {
+    return this.request(`/pickup/track/${id}`);
+  }
+
+  async reschedulePickupRequest(id, newDate, reason) {
+    return this.request(`/pickup/${id}/reschedule`, {
+      method: 'PUT',
+      body: JSON.stringify({ newDate, reason })
+    });
+  }
+
+  async ratePickup(id, rating, feedback) {
+    return this.request(`/pickup/${id}/rate`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, feedback })
+    });
+  }
+
+  async getMyPickupStats() {
+    return this.request('/pickup/my-stats');
+  }
+
   async getDashboardStats() {
     return this.request('/user/dashboard/stats');
   }
@@ -183,7 +196,6 @@ async trackPickupRequest(id) {
     return this.request('/user/dashboard/impact');
   }
 
-  // ============ REWARDS ============
   async getRewardsCatalog(category = 'all') {
     return this.request(`/rewards/catalog?category=${category}`);
   }
@@ -193,48 +205,125 @@ async trackPickupRequest(id) {
   }
 
   async redeemReward(rewardId, quantity = 1) {
-  return this.request('/rewards/redeem', {
-    method: 'POST',
-    body: JSON.stringify({ rewardId, quantity })
-  });
-}
+    return this.request('/rewards/redeem', {
+      method: 'POST',
+      body: JSON.stringify({ rewardId, quantity })
+    });
+  }
 
   async getUserRedemptions() {
     return this.request('/rewards/history');
   }
 
+  // ============ COLLECTOR API ============
+async getCollectorDashboard() {
+  return this.request('/collector/dashboard');
+}
+
+async getCollectorPickups() {
+  return this.request('/collector/pickups');
+}
+
+async getCollectorHistory() {
+  return this.request('/collector/history');
+}
+
+async updatePickupStatus(id, status, notes) {
+  return this.request(`/collector/pickups/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status, notes })
+  });
+}
+
   // ============ ADMIN PICKUP MANAGEMENT ============
-async getAdminPickups(filters = {}) {
-  const params = new URLSearchParams(filters).toString();
-  return this.request(`/admin/pickups?${params}`);
-}
+  async getAdminPickups(filters = {}) {
+    const params = new URLSearchParams(filters).toString();
+    return this.request(`/admin/pickups?${params}`);
+  }
 
-async getPickupStats() {
-  return this.request('/admin/pickups/stats');
-}
+  async getPickupDetails(id) {
+    return this.request(`/admin/pickups/${id}`);
+  }
 
-async assignPickup(id, collectorId) {
-  return this.request(`/admin/pickups/${id}/assign`, {
-    method: 'PUT',
-    body: JSON.stringify({ collectorId })
-  });
-}
+  async getPickupStats() {
+    return this.request('/admin/pickups/stats');
+  }
 
-async completePickup(id, data) {
-  return this.request(`/admin/pickups/${id}/complete`, {
-    method: 'PUT',
-    body: JSON.stringify(data)
-  });
-}
+  async getCollectors() {
+    return this.request('/admin/collectors');
+  }
 
-async cancelPickupAdmin(id, reason) {
-  return this.request(`/admin/pickups/${id}/cancel`, {
-    method: 'PUT',
-    body: JSON.stringify({ reason })
-  });
-}
+  async assignPickup(id, collectorId, estimatedArrivalTime, notes) {
+    return this.request(`/admin/pickups/${id}/assign`, {
+      method: 'PUT',
+      body: JSON.stringify({ collectorId, estimatedArrivalTime, notes })
+    });
+  }
 
-  // ============ ADMIN ============
+  async markAsPickedUp(id, notes) {
+    return this.request(`/admin/pickups/${id}/pickup`, {
+      method: 'PUT',
+      body: JSON.stringify({ notes })
+    });
+  }
+
+  async completePickup(id, { actualWeight, notes }) {
+    return this.request(`/admin/pickups/${id}/complete`, {
+      method: 'PUT',
+      body: JSON.stringify({ actualWeight, notes })
+    });
+  }
+
+  async cancelPickupAdmin(id, reason) {
+    return this.request(`/admin/pickups/${id}/cancel`, {
+      method: 'PUT',
+      body: JSON.stringify({ reason })
+    });
+  }
+
+  async approveReschedule(id, approved, adminNotes) {
+    return this.request(`/admin/pickups/${id}/reschedule/approve`, {
+      method: 'PUT',
+      body: JSON.stringify({ approved, adminNotes })
+    });
+  }
+
+  async exportPickups(filters = {}) {
+    const params = new URLSearchParams(filters).toString();
+    const response = await fetch(`${API_BASE_URL}/admin/pickups/export?${params}`, {
+      headers: {
+        'Authorization': `Bearer ${this.token}`
+      }
+    });
+    return response;
+  }
+
+  // ============ ADMIN COLLECTOR MANAGEMENT ============
+  async getAllCollectors() {
+    return this.request('/admin/collectors');
+  }
+
+  async createCollector(collectorData) {
+    return this.request('/admin/collectors', {
+      method: 'POST',
+      body: JSON.stringify(collectorData)
+    });
+  }
+
+  async updateCollector(id, collectorData) {
+    return this.request(`/admin/collectors/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(collectorData)
+    });
+  }
+
+  async deleteCollector(id) {
+    return this.request(`/admin/collectors/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // ============ ADMIN GENERAL ============
   async getAdminStats() {
     return this.request('/admin/stats');
   }

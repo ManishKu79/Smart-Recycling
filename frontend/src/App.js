@@ -9,21 +9,23 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import CollectorDashboard from './pages/collector/CollectorDashboard';
+import CollectorHistory from './pages/collector/CollectorHistory';
 // Public Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import HowItWorks from "./pages/HowItWorks";
 import SmartBinSimulator from "./pages/SmartBinSimulator";
-
+import AdminCollectors from './pages/admin/AdminCollectors';
+// import CollectorDashboard from './pages/collector/CollectorDashboard';
 // User Pages
 import UserDashboard from "./pages/user/UserDashboard";
 import SubmitRecycling from "./pages/user/SubmitRecycling";
 import UserRewards from "./pages/user/UserRewards";
 import UserProfile from "./pages/user/UserProfile";
 import RecyclingHistory from "./pages/user/RecyclingHistory";
-
+// import CollectorHistory from './pages/collector/CollectorHistory';
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
@@ -59,6 +61,56 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
+                <Route
+  path="/admin/collectors"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminCollectors />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/collector/dashboard"
+  element={
+    <ProtectedRoute role="collector">
+      <CollectorDashboard />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/collector/history"
+  element={
+    <ProtectedRoute role="collector">
+      <CollectorHistory />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/collector/profile"
+  element={
+    <ProtectedRoute role="collector">
+      <UserProfile />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/collector/dashboard"
+  element={
+    <ProtectedRoute role="collector">
+      <CollectorDashboard />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/collector/history"
+  element={
+    <ProtectedRoute role="collector">
+      <CollectorHistory />
+    </ProtectedRoute>
+  }
+/>
 
                 <Route
                   path="/admin/pickups"

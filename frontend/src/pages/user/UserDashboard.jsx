@@ -1,12 +1,18 @@
+// frontend/src/pages/user/UserDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import RedeemCode from '../../components/RedeemCode';
+import SmartBinRedeemModal from '../../components/SmartBinRedeemModal';
+import RatePickupModal from '../../components/RatePickupModal';
+import RescheduleModal from '../../components/RescheduleModal';
 import './UserDashboard.css';
 
 function UserDashboard() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [showRateModal, setShowRateModal] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [selectedPickup, setSelectedPickup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalWeight: 0,
@@ -17,11 +23,32 @@ function UserDashboard() {
   });
   const [recentActivities, setRecentActivities] = useState([]);
   const [pickupRequests, setPickupRequests] = useState([]);
+  const [pickupStats, setPickupStats] = useState({
+    totalRequests: 0,
+    completed: 0,
+    pending: 0,
+    cancelled: 0,
+    totalPointsEarned: 0,
+    totalWeightCollected: 0,
+    averageRating: 0
+  });
   const [pickupLoading, setPickupLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
 
   useEffect(() => {
     loadDashboardData();
     loadPickupRequests();
+    loadPickupStats();
+  }, []);
+
+  // Auto-refresh every 30 seconds for real-time status updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadPickupRequests();
+      setLastRefresh(Date.now());
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadDashboardData = async () => {
@@ -39,11 +66,19 @@ function UserDashboard() {
     }
   };
 
+  const loadPickupStats = async () => {
+    try {
+      const data = await api.getMyPickupStats();
+      setPickupStats(data.stats);
+    } catch (error) {
+      console.error('Failed to load pickup stats:', error);
+    }
+  };
+
   const loadPickupRequests = async () => {
     try {
       setPickupLoading(true);
       const data = await api.getMyPickupRequests();
-      // Ensure we have an array and each pickup has required fields
       const pickups = (data.pickups || []).map(pickup => ({
         ...pickup,
         address: {
@@ -66,9 +101,9 @@ function UserDashboard() {
     }
   };
 
-  const handleCodeRedeemed = (data) => {
+  const handleCodeRedeemed = async (data) => {
+    await refreshUser();
     loadDashboardData();
-    alert(`🎉 You earned ${data.pointsEarned} points!`);
   };
 
   const handleCancelPickup = async (id) => {
@@ -77,10 +112,24 @@ function UserDashboard() {
         await api.cancelPickupRequest(id, 'Cancelled by user');
         alert('✅ Pickup request cancelled');
         loadPickupRequests();
+        loadPickupStats();
       } catch (error) {
         alert('❌ Failed to cancel: ' + error.message);
       }
     }
+  };
+
+  const handleRatePickup = async (id, rating, feedback) => {
+    await api.ratePickup(id, rating, feedback);
+    alert('✅ Thank you for your feedback!');
+    loadPickupRequests();
+    loadPickupStats();
+  };
+
+  const handleReschedulePickup = async (id, newDate, reason) => {
+    await api.reschedulePickupRequest(id, newDate, reason);
+    alert('✅ Reschedule request submitted! Admin will review.');
+    loadPickupRequests();
   };
 
   const getPickupStatusBadge = (status) => {
@@ -90,9 +139,9 @@ function UserDashboard() {
       case 'assigned':
         return { class: 'status-assigned', text: '🚛 Assigned to Collector', icon: '🚛' };
       case 'picked_up':
-        return { class: 'status-picked', text: '✅ Picked Up', icon: '📦' };
+        return { class: 'status-picked', text: '📦 Picked Up', icon: '📦' };
       case 'completed':
-        return { class: 'status-completed', text: '🎉 Completed', icon: '🎉' };
+        return { class: 'status-completed', text: '✅ Completed', icon: '✅' };
       case 'cancelled':
         return { class: 'status-cancelled', text: '❌ Cancelled', icon: '❌' };
       default:
@@ -157,6 +206,29 @@ function UserDashboard() {
         </div>
       </div>
 
+      {/* Pickup Stats Summary */}
+      <div className="pickup-stats-summary card">
+        <h3>📊 Your Pickup Summary</h3>
+        <div className="pickup-stats-grid">
+          <div className="pickup-stat">
+            <span className="stat-number">{pickupStats.totalRequests}</span>
+            <span className="stat-name">Total Requests</span>
+          </div>
+          <div className="pickup-stat">
+            <span className="stat-number">{pickupStats.completed}</span>
+            <span className="stat-name">Completed</span>
+          </div>
+          <div className="pickup-stat">
+            <span className="stat-number">{pickupStats.pending}</span>
+            <span className="stat-name">Pending</span>
+          </div>
+          <div className="pickup-stat">
+            <span className="stat-number">{pickupStats.totalPointsEarned}</span>
+            <span className="stat-name">Points Earned</span>
+          </div>
+        </div>
+      </div>
+
       {/* Pickup Requests Section */}
       <div className="pickup-requests-section card">
         <div className="section-header">
@@ -180,10 +252,12 @@ function UserDashboard() {
           <div className="pickup-list">
             {pickupRequests.map(request => {
               const statusInfo = getPickupStatusBadge(request.status);
-              // Safe access to address fields with fallbacks
               const address = request.address || {};
+              const canRate = request.status === 'completed' && !request.rating;
+              const canReschedule = request.status === 'pending' || request.status === 'assigned';
+              
               return (
-                <div key={request.id || request._id} className={`pickup-item ${request.status || 'pending'}`}>
+                <div key={request.id} className={`pickup-item ${request.status}`}>
                   <div className="pickup-header">
                     <div className="pickup-tracking">
                       <span className="tracking-label">Tracking Code:</span>
@@ -201,7 +275,7 @@ function UserDashboard() {
                       {request.wasteTypes && request.wasteTypes.length > 0 ? (
                         <ul>
                           {request.wasteTypes.map((w, i) => (
-                            <li key={i}>{w.type || 'Unknown'}: {w.estimatedWeight || 0} kg</li>
+                            <li key={i}>{w.type}: {w.estimatedWeight} kg</li>
                           ))}
                         </ul>
                       ) : (
@@ -212,26 +286,41 @@ function UserDashboard() {
                     <div className="pickup-info">
                       <div>
                         <strong>📍 Address:</strong>
-                        <p>{address.street || 'Not provided'}, {address.city || ''} {address.pincode ? `- ${address.pincode}` : ''}</p>
+                        <p>{address.street}, {address.city} {address.pincode}</p>
                       </div>
                       <div>
                         <strong>📅 Preferred Date:</strong>
-                        <p>{request.preferredDate ? new Date(request.preferredDate).toLocaleDateString() : 'Not set'}</p>
+                        <p>{new Date(request.preferredDate).toLocaleDateString()}</p>
                       </div>
                       <div>
                         <strong>⏰ Time Slot:</strong>
-                        <p>{request.preferredTimeSlot || 'Not specified'}</p>
+                        <p>{request.preferredTimeSlot}</p>
                       </div>
                       <div>
                         <strong>⚖️ Estimated Weight:</strong>
-                        <p>{request.totalEstimatedWeight || 0} kg</p>
+                        <p>{request.totalEstimatedWeight} kg</p>
                       </div>
                       <div>
                         <strong>⭐ Estimated Points:</strong>
-                        <p>{request.totalEstimatedPoints || 0} pts</p>
+                        <p>{request.totalEstimatedPoints} pts</p>
                       </div>
                     </div>
                     
+                    {/* NEW: Collector Info (when assigned) */}
+                    {request.status === 'assigned' && request.collectorName && (
+                      <div className="collector-info">
+                        <div className="collector-details">
+                          <strong>🚛 Collector Assigned:</strong>
+                          <p>👤 {request.collectorName}</p>
+                          <p>📞 {request.collectorPhone}</p>
+                          {request.estimatedArrivalTime && (
+                            <p>⏱️ Estimated Arrival: {new Date(request.estimatedArrivalTime).toLocaleString()}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Actual weight and points after completion */}
                     {request.actualWeight > 0 && (
                       <div className="actual-weight">
                         <strong>✅ Actual Weight Collected:</strong>
@@ -246,20 +335,70 @@ function UserDashboard() {
                       </div>
                     )}
                     
-                    {request.status === 'pending' && (
-                      <button 
-                        className="btn-cancel-pickup"
-                        onClick={() => handleCancelPickup(request.id || request._id)}
-                      >
-                        Cancel Request
-                      </button>
-                    )}
-                    
-                    {request.status === 'assigned' && (
-                      <div className="assigned-message">
-                        🚛 A collector has been assigned to your pickup!
+                    {/* Rating Display (if already rated) */}
+                    {request.rating && (
+                      <div className="rating-display">
+                        <strong>⭐ Your Rating:</strong>
+                        <div className="stars">
+                          {[1,2,3,4,5].map(star => (
+                            <span key={star} className={star <= request.rating ? 'star-filled' : 'star-empty'}>★</span>
+                          ))}
+                        </div>
+                        {request.feedback && <p className="feedback-text">"{request.feedback}"</p>}
                       </div>
                     )}
+                    
+                    {/* Action Buttons */}
+                    <div className="pickup-actions">
+                      {request.status === 'pending' && (
+                        <>
+                          <button 
+                            className="btn-reschedule"
+                            onClick={() => {
+                              setSelectedPickup(request);
+                              setShowRescheduleModal(true);
+                            }}
+                          >
+                            📅 Reschedule
+                          </button>
+                          <button 
+                            className="btn-cancel-pickup"
+                            onClick={() => handleCancelPickup(request.id)}
+                          >
+                            Cancel Request
+                          </button>
+                        </>
+                      )}
+                      
+                      {request.status === 'assigned' && (
+                        <>
+                          <button 
+                            className="btn-reschedule"
+                            onClick={() => {
+                              setSelectedPickup(request);
+                              setShowRescheduleModal(true);
+                            }}
+                          >
+                            📅 Reschedule
+                          </button>
+                          <div className="assigned-message">
+                            🚛 A collector has been assigned! They will contact you shortly.
+                          </div>
+                        </>
+                      )}
+                      
+                      {canRate && (
+                        <button 
+                          className="btn-rate"
+                          onClick={() => {
+                            setSelectedPickup(request);
+                            setShowRateModal(true);
+                          }}
+                        >
+                          ⭐ Rate Experience
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -304,11 +443,27 @@ function UserDashboard() {
         )}
       </div>
 
-      {/* Redeem Modal */}
+      {/* Modals */}
       {showRedeemModal && (
-        <RedeemCode
-          onSuccess={handleCodeRedeemed}
+        <SmartBinRedeemModal
           onClose={() => setShowRedeemModal(false)}
+          onSuccess={handleCodeRedeemed}
+        />
+      )}
+      
+      {showRateModal && selectedPickup && (
+        <RatePickupModal
+          pickup={selectedPickup}
+          onClose={() => setShowRateModal(false)}
+          onSubmit={handleRatePickup}
+        />
+      )}
+      
+      {showRescheduleModal && selectedPickup && (
+        <RescheduleModal
+          pickup={selectedPickup}
+          onClose={() => setShowRescheduleModal(false)}
+          onSubmit={handleReschedulePickup}
         />
       )}
     </div>

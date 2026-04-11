@@ -32,13 +32,6 @@
   font-size: 28px;
 }
 
-.logo-text {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 .navbar-toggle {
   display: none;
   background: none;
@@ -85,15 +78,6 @@
   background: #f0fdf4;
 }
 
-.admin-link {
-  color: #7c3aed;
-}
-
-.admin-link:hover {
-  color: #7c3aed;
-  background: #f5f3ff;
-}
-
 .points-badge {
   background: #fef3c7;
   color: #92400e;
@@ -104,21 +88,20 @@
   font-weight: 600;
 }
 
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border-left: 2px solid #e5e7eb;
-  padding-left: 15px;
-  margin-left: 10px;
+/* User Name Button Styles */
+.user-name-btn {
+  background: #f0fdf4;
+  border-radius: 30px !important;
+  padding: 6px 16px !important;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
 }
 
-.profile-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: #f0fdf4;
-  padding: 6px 14px !important;
+.user-name-btn:hover {
+  background: #dcfce7 !important;
+  color: #065f46 !important;
 }
 
 .user-avatar {
@@ -131,21 +114,13 @@
   font-size: 14px;
 }
 
-.logout-btn {
-  background: none;
-  border: none;
-  color: #ef4444 !important;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 6px 12px;
-  margin: 0;
+.dropdown-arrow {
+  font-size: 10px;
+  color: #10b981;
+  margin-left: 4px;
 }
 
-.logout-btn:hover {
-  background: #fee2e2 !important;
-  color: #dc2626 !important;
-}
-
+/* Login/Register Buttons */
 .btn-login {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white !important;
@@ -157,6 +132,38 @@
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  color: white !important;
+}
+
+.btn-register {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white !important;
+  padding: 8px 20px !important;
+  border-radius: 30px;
+}
+
+.btn-register:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  color: white !important;
+}
+
+/* Logout Button */
+.logout-btn {
+  background: none;
+  border: none;
+  color: #ef4444 !important;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px 12px;
+  margin: 0;
+  border-radius: 6px;
+}
+
+.logout-btn:hover {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
 }
 
 /* Mobile Responsive */
@@ -198,36 +205,24 @@
     justify-content: flex-start;
   }
 
-  .user-menu {
-    border-left: none;
-    padding-left: 0;
-    margin-left: 0;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  .profile-link {
+  .btn-login, .btn-register {
     justify-content: center;
-    width: 100%;
+    text-align: center;
   }
 
   .logout-btn {
     width: 100%;
-    text-align: center;
-    justify-content: center;
-  }
-
-  .btn-login {
-    text-align: center;
-    justify-content: center;
+    text-align: left;
+    justify-content: flex-start;
   }
 
   .points-badge {
     margin-left: auto;
+  }
+
+  .user-name-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -236,13 +231,5 @@
   .nav-link {
     padding: 8px 10px;
     font-size: 13px;
-  }
-  
-  .user-name {
-    display: none;
-  }
-  
-  .profile-link {
-    padding: 6px 10px !important;
   }
 }

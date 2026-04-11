@@ -183,6 +183,549 @@
   border-bottom-color: #fecaca;
 }
 
+/* Add to AdminPickups.css */
+
+/* Enhanced Stats Grid */
+.pickup-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.picked-card .stat-value { color: #8b5cf6; }
+.rating-card .stat-value { color: #f59e0b; }
+
+/* Filters Section */
+.filters-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+}
+
+.search-box input {
+  padding: 10px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  width: 250px;
+}
+
+.search-box button {
+  padding: 10px 20px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* View Details Button */
+.btn-view-details {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Reschedule Info */
+.reschedule-info {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+}
+
+/* Rating Info */
+.rating-info {
+  background: #f0fdf4;
+  border-left: 4px solid #10b981;
+}
+
+/* Pickup Button */
+.btn-pickup {
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-pickup:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+}
+
+/* Large Modal */
+.modal-content.large {
+  max-width: 800px;
+  width: 90%;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.details-section {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.details-section h4 {
+  margin: 0 0 10px 0;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 5px;
+}
+
+.details-section p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+@media (max-width: 1024px) {
+  .pickup-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-section {
+    flex-direction: column;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+  
+  .search-box input {
+    flex: 1;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pickup-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* ============ MODERN ASSIGN MODAL STYLES ============ */
+
+.assign-modal-container {
+  background: white;
+  border-radius: 28px;
+  max-width: 550px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideUp 0.3s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Modal Header */
+.assign-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  position: relative;
+}
+
+.header-icon {
+  font-size: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assign-modal-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: white;
+}
+
+.assign-modal-header .close-btn {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.assign-modal-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Pickup Info Card */
+.pickup-info-card {
+  background: #f8fafc;
+  margin: 20px 24px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.info-value.tracking {
+  font-family: monospace;
+  color: #10b981;
+  letter-spacing: 0.5px;
+}
+
+/* Form Styles */
+.assign-form {
+  padding: 0 24px;
+}
+
+.form-group-modern {
+  margin-bottom: 24px;
+}
+
+.form-label-modern {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.label-icon {
+  font-size: 16px;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+/* Modern Select Dropdown */
+.collector-search-container {
+  position: relative;
+}
+
+.custom-select {
+  position: relative;
+}
+
+.modern-select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.modern-select:hover {
+  border-color: #10b981;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* DateTime Picker */
+.datetime-wrapper {
+  position: relative;
+}
+
+.modern-datetime {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s;
+  background: white;
+}
+
+.modern-datetime:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.datetime-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Textarea */
+.modern-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s;
+}
+
+.modern-textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+.char-counter .warning {
+  color: #f59e0b;
+}
+
+/* Helper Text */
+.helper-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.helper-text.warning {
+  color: #f59e0b;
+}
+
+/* Points Estimate Card */
+.points-estimate {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.estimate-icon {
+  font-size: 28px;
+}
+
+.estimate-content {
+  flex: 1;
+}
+
+.estimate-label {
+  display: block;
+  font-size: 12px;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.estimate-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #065f46;
+}
+
+/* Action Buttons */
+.assign-modal-actions {
+  display: flex;
+  gap: 15px;
+  padding: 20px 24px 28px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0 0 28px 28px;
+}
+
+.btn-confirm-assign, .btn-cancel-assign {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-confirm-assign {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-confirm-assign:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-confirm-assign:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-cancel-assign {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.btn-cancel-assign:hover {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+/* Animation */
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .assign-modal-header {
+    padding: 20px;
+  }
+  
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+  
+  .assign-modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .pickup-info-card {
+    margin: 16px;
+    padding: 12px 16px;
+  }
+  
+  .assign-form {
+    padding: 0 16px;
+  }
+  
+  .info-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .assign-modal-actions {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 20px 24px;
+  }
+  
+  .estimate-value {
+    font-size: 18px;
+  }
+}
+
 /* Action Buttons */
 .pickup-card-actions {
   padding: 20px 25px;

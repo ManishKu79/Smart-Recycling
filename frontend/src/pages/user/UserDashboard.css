@@ -505,7 +505,146 @@
   padding: 30px;
   color: #6b7280;
 }
+/* Add to UserDashboard.css */
 
+/* Pickup Stats Summary */
+.pickup-stats-summary {
+  margin-bottom: 30px;
+  padding: 20px;
+}
+
+.pickup-stats-summary h3 {
+  margin-bottom: 15px;
+  color: #1f2937;
+}
+
+.pickup-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.pickup-stat {
+  text-align: center;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.pickup-stat .stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.pickup-stat .stat-name {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Collector Info */
+.collector-info {
+  background: #dbeafe;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px 0;
+  border-left: 4px solid #3b82f6;
+}
+
+.collector-details p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #1e40af;
+}
+
+/* Rating Display */
+.rating-display {
+  background: #fef3c7;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.rating-display .stars {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.star-filled {
+  color: #fbbf24;
+  font-size: 18px;
+}
+
+.star-empty {
+  color: #d1d5db;
+  font-size: 18px;
+}
+
+.feedback-text {
+  margin-top: 10px;
+  font-style: italic;
+  color: #92400e;
+  font-size: 0.85rem;
+}
+
+/* Pickup Actions */
+.pickup-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.btn-reschedule {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-reschedule:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+.btn-rate {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-rate:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .pickup-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pickup-actions {
+    flex-direction: column;
+  }
+  
+  .btn-reschedule, .btn-rate {
+    width: 100%;
+    text-align: center;
+  }
+}
 /* Responsive */
 @media (max-width: 768px) {
   .pickup-header {

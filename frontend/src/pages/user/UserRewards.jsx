@@ -1,8 +1,9 @@
+// frontend/src/pages/user/UserRewards.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import RedeemModal from '../../components/RedeemModal';
-import SuccessModal from '../../components/SuccessModal';
+import RedeemRewardModal from '../../components/RedeemRewardModal';
+import RedemptionSuccessModal from '../../components/RedemptionSuccessModal';
 import './UserRewards.css';
 
 function UserRewards() {
@@ -60,22 +61,25 @@ function UserRewards() {
     try {
       const result = await api.redeemReward(rewardId, quantity);
       
+      // Refresh points from server
+      const pointsData = await api.getUserPoints();
+      setPoints(pointsData.points.balance);
+      
+      // Refresh redemptions
+      const historyData = await api.getUserRedemptions();
+      setRedemptions(historyData.redemptions || []);
+      
+      // Set last redemption for success modal
       setLastRedemption({
         rewardName: result.redemption.rewardName,
         redemptionCode: result.redemption.redemptionCode,
         pointsSpent: result.redemption.pointsSpent,
-        remainingPoints: points - result.redemption.pointsSpent
+        remainingPoints: pointsData.points.balance
       });
       
+      // Close redeem modal and show success modal
       setShowRedeemModal(false);
       setShowSuccessModal(true);
-      
-      // Refresh points and redemptions
-      const pointsData = await api.getUserPoints();
-      setPoints(pointsData.points.balance);
-      
-      const historyData = await api.getUserRedemptions();
-      setRedemptions(historyData.redemptions || []);
       
     } catch (error) {
       alert('❌ Redemption failed: ' + error.message);
@@ -84,8 +88,7 @@ function UserRewards() {
 
   const handleViewMyRewards = () => {
     setShowSuccessModal(false);
-    // Navigate to My Rewards page (you can create this later)
-    // For now, just scroll to recent redemptions
+    // Scroll to recent redemptions
     document.getElementById('recent-redemptions')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -196,7 +199,7 @@ function UserRewards() {
 
       {/* Modals */}
       {showRedeemModal && selectedReward && (
-        <RedeemModal
+        <RedeemRewardModal
           reward={selectedReward}
           userPoints={points}
           onClose={() => setShowRedeemModal(false)}
@@ -205,7 +208,7 @@ function UserRewards() {
       )}
 
       {showSuccessModal && lastRedemption && (
-        <SuccessModal
+        <RedemptionSuccessModal
           redemption={lastRedemption}
           onClose={() => setShowSuccessModal(false)}
           onViewRewards={handleViewMyRewards}

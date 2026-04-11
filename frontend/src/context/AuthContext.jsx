@@ -88,6 +88,37 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  // ✅ refreshUser - Fetches latest user data from server (for navbar update)
+  const refreshUser = async () => {
+    try {
+      const response = await api.getCurrentUser();
+      if (response && response.user) {
+        setUser(response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        return response.user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+      return null;
+    }
+  };
+
+  // ✅ refreshUserPoints - Alias for refreshUser (for clarity)
+  const refreshUserPoints = async () => {
+    return await refreshUser();
+  };
+
+  // ✅ addUserPoints - Add points locally for immediate UI update
+  const addUserPoints = (pointsToAdd) => {
+    if (user) {
+      const newPoints = (user.points || 0) + pointsToAdd;
+      const updatedUser = { ...user, points: newPoints };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -96,6 +127,9 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
+    refreshUser,        // ✅ EXPOSED - For navbar and components
+    refreshUserPoints,  // ✅ EXPOSED - Alias
+    addUserPoints,      // ✅ EXPOSED
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
     isUser: user?.role === 'user'

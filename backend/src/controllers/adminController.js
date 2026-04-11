@@ -3,10 +3,9 @@ const User = require('../models/User');
 const Submission = require('../models/Submission');
 const Reward = require('../models/Reward');
 const Redemption = require('../models/Redemption');
+const PickupRequest = require('../models/PickupRequest');
 
-// @desc    Get admin dashboard stats
-// @route   GET /api/admin/stats
-// @access  Private/Admin
+// ============ EXISTING FUNCTIONS ============
 const getStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -45,9 +44,6 @@ const getStats = async (req, res) => {
   }
 };
 
-// @desc    Get all submissions
-// @route   GET /api/admin/submissions
-// @access  Private/Admin
 const getSubmissions = async (req, res) => {
   try {
     const { status = 'all', page = 1, limit = 20 } = req.query;
@@ -85,9 +81,6 @@ const getSubmissions = async (req, res) => {
   }
 };
 
-// @desc    Approve submission
-// @route   PUT /api/admin/submissions/:id/approve
-// @access  Private/Admin
 const approveSubmission = async (req, res) => {
   try {
     const submission = await Submission.findById(req.params.id);
@@ -106,13 +99,11 @@ const approveSubmission = async (req, res) => {
       });
     }
 
-    // Update submission
     submission.status = 'approved';
     submission.approvedAt = new Date();
     submission.approvedBy = req.user.id;
     await submission.save();
 
-    // Update user stats
     const user = await User.findById(submission.userId);
     if (user) {
       user.totalRecycled += submission.weight;
@@ -120,7 +111,6 @@ const approveSubmission = async (req, res) => {
       user.treesSaved = Math.floor(user.carbonSaved / 20);
       user.points += submission.pointsEarned;
       
-      // Update streak
       const lastSubmission = await Submission.findOne({
         userId: user.id,
         status: 'approved',
@@ -154,9 +144,6 @@ const approveSubmission = async (req, res) => {
   }
 };
 
-// @desc    Reject submission
-// @route   PUT /api/admin/submissions/:id/reject
-// @access  Private/Admin
 const rejectSubmission = async (req, res) => {
   try {
     const { reason } = req.body;
@@ -177,7 +164,6 @@ const rejectSubmission = async (req, res) => {
       });
     }
 
-    // Update submission
     submission.status = 'rejected';
     submission.rejectionReason = reason;
     submission.approvedAt = new Date();
@@ -197,9 +183,6 @@ const rejectSubmission = async (req, res) => {
   }
 };
 
-// @desc    Get all users
-// @route   GET /api/admin/users
-// @access  Private/Admin
 const getUsers = async (req, res) => {
   try {
     const { search, page = 1, limit = 20 } = req.query;
@@ -239,9 +222,6 @@ const getUsers = async (req, res) => {
   }
 };
 
-// @desc    Update user role
-// @route   PUT /api/admin/users/:id/role
-// @access  Private/Admin
 const updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -255,7 +235,6 @@ const updateUserRole = async (req, res) => {
       });
     }
 
-    // Don't allow changing own role
     if (user.id === req.user.id) {
       return res.status(400).json({ 
         success: false, 
@@ -279,9 +258,6 @@ const updateUserRole = async (req, res) => {
   }
 };
 
-// @desc    Toggle user status
-// @route   PUT /api/admin/users/:id/toggle-status
-// @access  Private/Admin
 const toggleUserStatus = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -293,7 +269,6 @@ const toggleUserStatus = async (req, res) => {
       });
     }
 
-    // Don't allow deactivating own account
     if (user.id === req.user.id) {
       return res.status(400).json({ 
         success: false, 
@@ -317,9 +292,6 @@ const toggleUserStatus = async (req, res) => {
   }
 };
 
-// @desc    Create reward
-// @route   POST /api/admin/rewards
-// @access  Private/Admin
 const createReward = async (req, res) => {
   try {
     const reward = await Reward.create(req.body);
@@ -337,9 +309,6 @@ const createReward = async (req, res) => {
   }
 };
 
-// @desc    Update reward
-// @route   PUT /api/admin/rewards/:id
-// @access  Private/Admin
 const updateReward = async (req, res) => {
   try {
     const reward = await Reward.findByIdAndUpdate(
@@ -368,9 +337,6 @@ const updateReward = async (req, res) => {
   }
 };
 
-// @desc    Delete reward (soft delete)
-// @route   DELETE /api/admin/rewards/:id
-// @access  Private/Admin
 const deleteReward = async (req, res) => {
   try {
     const reward = await Reward.findByIdAndUpdate(
@@ -399,6 +365,181 @@ const deleteReward = async (req, res) => {
   }
 };
 
+// ============ COLLECTOR MANAGEMENT FUNCTIONS (FIXED) ============
+
+const createCollector = async (req, res) => {
+  try {
+    const { fullName, email, password, phone, address, city, pincode, assignedZone } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email already exists'
+      });
+    }
+
+    const collector = await User.create({
+      fullName,
+      email,
+      password,
+      phone,
+      address,
+      city,
+      pincode,
+      role: 'collector',
+      assignedZone: assignedZone || '',
+      points: 0,
+      isActive: true
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Collector created successfully',
+      collector: {
+        id: collector._id,
+        fullName: collector.fullName,
+        email: collector.email,
+        phone: collector.phone
+      }
+    });
+  } catch (error) {
+    console.error('Create collector error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create collector'
+    });
+  }
+};
+
+const getAllCollectors = async (req, res) => {
+  try {
+    const collectors = await User.find({ role: 'collector' })
+      .select('-password')
+      .sort({ createdAt: -1 });
+    
+    const collectorsWithStats = await Promise.all(collectors.map(async (collector) => {
+      const completedPickups = await PickupRequest.countDocuments({
+        assignedTo: collector._id,
+        status: 'completed'
+      });
+      
+      const avgRating = await PickupRequest.aggregate([
+        { $match: { assignedTo: collector._id, rating: { $ne: null } } },
+        { $group: { _id: null, average: { $avg: '$rating' } } }
+      ]);
+      
+      // Return clean object with explicit id field
+      return {
+        id: collector._id.toString(),
+        _id: collector._id.toString(),
+        fullName: collector.fullName,
+        email: collector.email,
+        phone: collector.phone || '',
+        address: collector.address || '',
+        city: collector.city || '',
+        pincode: collector.pincode || '',
+        assignedZone: collector.assignedZone || '',
+        isActive: collector.isActive,
+        role: collector.role,
+        completedPickups: completedPickups || 0,
+        averageRating: avgRating[0]?.average?.toFixed(1) || 0,
+        createdAt: collector.createdAt
+      };
+    }));
+    
+    res.json({
+      success: true,
+      collectors: collectorsWithStats
+    });
+  } catch (error) {
+    console.error('Get all collectors error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get collectors: ' + error.message
+    });
+  }
+};
+
+const updateCollector = async (req, res) => {
+  try {
+    const { fullName, phone, address, city, pincode, assignedZone, isActive } = req.body;
+    
+    const collector = await User.findById(req.params.id);
+    if (!collector || collector.role !== 'collector') {
+      return res.status(404).json({
+        success: false,
+        error: 'Collector not found'
+      });
+    }
+    
+    if (fullName) collector.fullName = fullName;
+    if (phone) collector.phone = phone;
+    if (address) collector.address = address;
+    if (city) collector.city = city;
+    if (pincode) collector.pincode = pincode;
+    if (assignedZone) collector.assignedZone = assignedZone;
+    if (typeof isActive === 'boolean') collector.isActive = isActive;
+    
+    await collector.save();
+    
+    res.json({
+      success: true,
+      message: 'Collector updated successfully',
+      collector: {
+        id: collector._id,
+        fullName: collector.fullName,
+        email: collector.email,
+        phone: collector.phone,
+        isActive: collector.isActive
+      }
+    });
+  } catch (error) {
+    console.error('Update collector error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update collector'
+    });
+  }
+};
+
+const deleteCollector = async (req, res) => {
+  try {
+    const collector = await User.findById(req.params.id);
+    if (!collector || collector.role !== 'collector') {
+      return res.status(404).json({
+        success: false,
+        error: 'Collector not found'
+      });
+    }
+    
+    const assignedPickups = await PickupRequest.countDocuments({
+      assignedTo: collector._id,
+      status: { $in: ['assigned', 'picked_up'] }
+    });
+    
+    if (assignedPickups > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Cannot delete collector with ${assignedPickups} active pickups`
+      });
+    }
+    
+    await User.findByIdAndDelete(req.params.id);
+    
+    res.json({
+      success: true,
+      message: 'Collector deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete collector error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete collector'
+    });
+  }
+};
+
 module.exports = {
   getStats,
   getSubmissions,
@@ -409,5 +550,9 @@ module.exports = {
   toggleUserStatus,
   createReward,
   updateReward,
-  deleteReward
+  deleteReward,
+  createCollector,
+  getAllCollectors,
+  updateCollector,
+  deleteCollector
 };

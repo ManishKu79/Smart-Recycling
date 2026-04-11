@@ -3,11 +3,16 @@ const express = require('express');
 
 const {
   getAllPickups,
+  getPickupDetails,
   assignPickup,
+  markAsPickedUp,
   completePickup,
-  cancelPickupAdmin,
-  getPickupStats
-} = require('../controllers/pickupController');
+  cancelPickup,
+  approveReschedule,
+  getPickupStats,
+  getCollectors,
+  exportPickups
+} = require('../controllers/adminPickupController');
 
 const {
   getStats,
@@ -19,7 +24,11 @@ const {
   toggleUserStatus,
   createReward,
   updateReward,
-  deleteReward
+  deleteReward,
+  createCollector,
+  getAllCollectors,
+  updateCollector,
+  deleteCollector
 } = require('../controllers/adminController');
 
 const { protect, admin } = require('../middleware/auth');
@@ -28,40 +37,33 @@ const router = express.Router();
 
 router.use(protect, admin);
 
-// ================= SAFE WRAPPER =================
-const safe = (fn) => (req, res, next) => {
-  if (typeof fn !== 'function') {
-    return res.status(500).json({
-      success: false,
-      error: 'Route handler undefined'
-    });
-  }
-  return fn(req, res, next);
-};
+router.get('/stats', getStats);
 
-// ================= DASHBOARD =================
-router.get('/stats', safe(getStats));
+router.get('/pickups', getAllPickups);
+router.get('/pickups/stats', getPickupStats);
+router.get('/pickups/export', exportPickups);
+router.get('/pickups/:id', getPickupDetails);
+router.put('/pickups/:id/assign', assignPickup);
+router.put('/pickups/:id/pickup', markAsPickedUp);
+router.put('/pickups/:id/complete', completePickup);
+router.put('/pickups/:id/cancel', cancelPickup);
+router.put('/pickups/:id/reschedule/approve', approveReschedule);
 
-// ================= PICKUPS =================
-router.get('/pickups', safe(getAllPickups));
-router.get('/pickups/stats', safe(getPickupStats));
-router.put('/pickups/:id/assign', safe(assignPickup));
-router.put('/pickups/:id/complete', safe(completePickup));
-router.put('/pickups/:id/cancel', safe(cancelPickupAdmin));
+router.get('/collectors', getAllCollectors);
+router.post('/collectors', createCollector);
+router.put('/collectors/:id', updateCollector);
+router.delete('/collectors/:id', deleteCollector);
 
-// ================= SUBMISSIONS =================
-router.get('/submissions', safe(getSubmissions));
-router.put('/submissions/:id/approve', safe(approveSubmission));
-router.put('/submissions/:id/reject', safe(rejectSubmission));
+router.get('/submissions', getSubmissions);
+router.put('/submissions/:id/approve', approveSubmission);
+router.put('/submissions/:id/reject', rejectSubmission);
 
-// ================= USERS =================
-router.get('/users', safe(getUsers));
-router.put('/users/:id/role', safe(updateUserRole));
-router.put('/users/:id/toggle-status', safe(toggleUserStatus));
+router.get('/users', getUsers);
+router.put('/users/:id/role', updateUserRole);
+router.put('/users/:id/toggle-status', toggleUserStatus);
 
-// ================= REWARDS =================
-router.post('/rewards', safe(createReward));
-router.put('/rewards/:id', safe(updateReward));
-router.delete('/rewards/:id', safe(deleteReward));
+router.post('/rewards', createReward);
+router.put('/rewards/:id', updateReward);
+router.delete('/rewards/:id', deleteReward);
 
 module.exports = router;

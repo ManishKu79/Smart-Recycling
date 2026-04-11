@@ -1,29 +1,25 @@
 // frontend/src/pages/user/SubmitRecycling.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import RedeemCode from '../../components/RedeemCode';
+import SmartBinRedeemModal from '../../components/SmartBinRedeemModal';
 import './SubmitRecycling.css';
 
 function SubmitRecycling() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [submissionMethod, setSubmissionMethod] = useState('smartbin');
   const [showRedeemModal, setShowRedeemModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [detectingLocation, setDetectingLocation] = useState(false);
+  const [redeemSuccess, setRedeemSuccess] = useState(null);
   
   // Pickup Request Form State
   const [pickupForm, setPickupForm] = useState({
-    wasteTypes: [
-      { type: '', estimatedWeight: '' }
-    ],
-    address: {
-      street: '',
-      city: '',
-      pincode: '',
-      landmark: ''
-    },
+    wasteTypes: [{ type: '', estimatedWeight: '' }],
+    address: { street: '', city: '', pincode: '', landmark: '' },
     preferredDate: '',
     preferredTimeSlot: 'morning',
     specialInstructions: ''
@@ -39,13 +35,13 @@ function SubmitRecycling() {
     { value: 'textiles', label: '👕 Textiles', points: 7 }
   ];
 
-const timeSlots = [
-  { value: 'morning', label: 'Morning (9:00 AM - 12:00 PM)' },
-  { value: 'afternoon', label: 'Afternoon (12:00 PM - 3:00 PM)' },
-  { value: 'evening', label: 'Evening (3:00 PM - 6:00 PM)' }
-];
+  const timeSlots = [
+    { value: 'morning', label: 'Morning (9:00 AM - 12:00 PM)' },
+    { value: 'afternoon', label: 'Afternoon (12:00 PM - 3:00 PM)' },
+    { value: 'evening', label: 'Evening (3:00 PM - 6:00 PM)' }
+  ];
 
-  // ============ AUTO LOCATION DETECTION ============
+  // Auto detect location
   const detectCurrentLocation = () => {
     if (!navigator.geolocation) {
       setMessage({ type: 'error', text: 'Geolocation is not supported by your browser' });
@@ -60,7 +56,6 @@ const timeSlots = [
         const { latitude, longitude } = position.coords;
         
         try {
-          // Reverse geocoding using OpenStreetMap Nominatim API
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
           );
@@ -74,12 +69,7 @@ const timeSlots = [
             
             setPickupForm(prev => ({
               ...prev,
-              address: {
-                ...prev.address,
-                street: street,
-                city: city,
-                pincode: pincode
-              }
+              address: { ...prev.address, street, city, pincode }
             }));
             
             setMessage({ type: 'success', text: '📍 Location detected successfully!' });
@@ -88,11 +78,7 @@ const timeSlots = [
           }
         } catch (error) {
           console.error('Reverse geocoding error:', error);
-          // Fallback: just set coordinates
-          setMessage({ 
-            type: 'info', 
-            text: `Location detected! Please enter your address manually. Coordinates: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}` 
-          });
+          setMessage({ type: 'info', text: 'Location detected! Please enter your address manually.' });
         } finally {
           setDetectingLocation(false);
         }
@@ -125,7 +111,6 @@ const timeSlots = [
     );
   };
 
-  // ============ PICKUP REQUEST HANDLERS ============
   const addWasteType = () => {
     setPickupForm(prev => ({
       ...prev,
@@ -185,7 +170,6 @@ const timeSlots = [
   const handlePickupSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
     if (pickupForm.wasteTypes.some(w => !w.type || !w.estimatedWeight)) {
       setMessage({ type: 'error', text: 'Please fill all waste type details' });
       return;
@@ -217,9 +201,7 @@ const timeSlots = [
       });
       
       setMessage({ type: 'success', text: `✅ Pickup request submitted! Tracking Code: ${response.pickupRequest.trackingCode}` });
-      setTimeout(() => {
-        navigate('/user/dashboard');
-      }, 3000);
+      setTimeout(() => navigate('/user/dashboard'), 3000);
     } catch (error) {
       setMessage({ type: 'error', text: 'Pickup request failed: ' + error.message });
     } finally {
@@ -227,12 +209,19 @@ const timeSlots = [
     }
   };
 
-  // ============ SMART BIN HANDLERS ============
-  const handleCodeRedeemed = (data) => {
-    setMessage({ type: 'success', text: `🎉 Success! You earned ${data.pointsEarned} points for recycling ${data.weight} kg of ${data.wasteType}!` });
-    setTimeout(() => {
-      navigate('/user/dashboard');
-    }, 2000);
+  // Smart Bin Redemption Handler
+  const handleCodeRedeemed = async (data) => {
+    // Refresh user points from server to update navbar
+    await refreshUser();
+    
+    setRedeemSuccess({
+      points: data.pointsEarned,
+      weight: data.weight,
+      wasteType: data.wasteType
+    });
+    
+    // Auto hide success message after 5 seconds
+    setTimeout(() => setRedeemSuccess(null), 5000);
   };
 
   return (
@@ -242,7 +231,7 @@ const timeSlots = [
         <p>Choose how you want to recycle</p>
       </div>
 
-      {/* Method Selection Tabs - Only 2 Options */}
+      {/* Method Selection Tabs */}
       <div className="method-tabs">
         <button
           className={`method-tab ${submissionMethod === 'smartbin' ? 'active' : ''}`}
@@ -266,7 +255,15 @@ const timeSlots = [
         </div>
       )}
 
-      {/* ============ SMART BIN SECTION ============ */}
+      {/* Redemption Success Message */}
+      {redeemSuccess && (
+        <div className="message-box success">
+          <span>🎉</span>
+          <span>Success! You earned {redeemSuccess.points} points for recycling {redeemSuccess.weight} kg of {redeemSuccess.wasteType}!</span>
+        </div>
+      )}
+
+      {/* SMART BIN SECTION */}
       {submissionMethod === 'smartbin' && (
         <div className="smartbin-section">
           <div className="redeem-section">
@@ -285,7 +282,7 @@ const timeSlots = [
         </div>
       )}
 
-      {/* ============ WASTE PICKUP SECTION ============ */}
+      {/* PICKUP SECTION */}
       {submissionMethod === 'pickup' && (
         <form className="pickup-form" onSubmit={handlePickupSubmit}>
           {/* Waste Types Section */}
@@ -328,36 +325,23 @@ const timeSlots = [
                 </div>
                 
                 {pickupForm.wasteTypes.length > 1 && (
-                  <button
-                    type="button"
-                    className="btn-remove"
-                    onClick={() => removeWasteType(index)}
-                  >
+                  <button type="button" className="btn-remove" onClick={() => removeWasteType(index)}>
                     ✕
                   </button>
                 )}
               </div>
             ))}
             
-            <button
-              type="button"
-              className="btn-add-waste"
-              onClick={addWasteType}
-            >
+            <button type="button" className="btn-add-waste" onClick={addWasteType}>
               + Add Another Waste Type
             </button>
           </div>
 
-          {/* Address Section with Auto Detect */}
+          {/* Address Section */}
           <div className="form-section">
             <div className="address-header">
               <h3>📍 Pickup Address</h3>
-              <button
-                type="button"
-                className="btn-detect-location"
-                onClick={detectCurrentLocation}
-                disabled={detectingLocation}
-              >
+              <button type="button" className="btn-detect-location" onClick={detectCurrentLocation} disabled={detectingLocation}>
                 {detectingLocation ? '📍 Detecting...' : '📍 Detect My Location'}
               </button>
             </div>
@@ -480,21 +464,17 @@ const timeSlots = [
             </p>
           </div>
 
-          <button
-            type="submit"
-            className="btn-submit-pickup"
-            disabled={loading}
-          >
+          <button type="submit" className="btn-submit-pickup" disabled={loading}>
             {loading ? 'Submitting Request...' : '🚛 Request Pickup'}
           </button>
         </form>
       )}
 
-      {/* Redeem Modal */}
+      {/* Smart Bin Redeem Modal */}
       {showRedeemModal && (
-        <RedeemCode
-          onSuccess={handleCodeRedeemed}
+        <SmartBinRedeemModal
           onClose={() => setShowRedeemModal(false)}
+          onSuccess={handleCodeRedeemed}
         />
       )}
     </div>
