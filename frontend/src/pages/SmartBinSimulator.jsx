@@ -12,12 +12,11 @@ function SmartBinSimulator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Hide navbar when this page mounts
+  // ✅ Use deployed backend URL
+  const API_BASE_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
-    // Add a class to body to hide navbar
     document.body.classList.add('hide-navbar');
-    
-    // Cleanup: remove class when component unmounts
     return () => {
       document.body.classList.remove('hide-navbar');
     };
@@ -49,26 +48,26 @@ function SmartBinSimulator() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.wasteType) {
       setError('Please select a waste type');
       return;
     }
-    
+
     if (!formData.weight || formData.weight <= 0) {
       setError('Please enter a valid weight');
       return;
     }
-    
+
     if (formData.weight > 50) {
       setError('Maximum weight is 50kg per transaction');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      const response = await fetch('http://localhost:8000/api/smartbin/generate', {
+      const response = await fetch(`${API_BASE_URL}/smartbin/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -78,9 +77,9 @@ function SmartBinSimulator() {
           weight: parseFloat(formData.weight)
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setGeneratedCode(data.data);
         setStep('receipt');
@@ -88,7 +87,8 @@ function SmartBinSimulator() {
         setError(data.error);
       }
     } catch (err) {
-      setError('Failed to generate code. Please make sure the backend server is running on port 8000');
+      console.error(err);
+      setError('Failed to generate code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -128,53 +128,28 @@ function SmartBinSimulator() {
                       className={`waste-option ${formData.wasteType === type.value ? 'selected' : ''}`}
                       onClick={() => setFormData(prev => ({ ...prev, wasteType: type.value }))}
                     >
-                      <span className="waste-icon">{type.icon}</span>
-                      <span className="waste-name">{type.label}</span>
-                      <span className="waste-points" style={{ color: type.color }}>{type.points} pts/kg</span>
-                      <span className="waste-desc">{type.description}</span>
+                      <span>{type.icon}</span>
+                      <span>{type.label}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Weight (kg)</label>
+                <label>Weight (kg)</label>
                 <input
                   type="number"
                   name="weight"
                   value={formData.weight}
                   onChange={handleInputChange}
-                  className="form-input"
-                  step="0.1"
-                  min="0.1"
-                  max="50"
-                  placeholder="Enter weight in kilograms"
                   required
                 />
-                <small className="form-hint">Maximum 50kg per transaction. Minimum 0.1kg.</small>
               </div>
 
-              {formData.wasteType && formData.weight && (
-                <div className="points-preview" style={{ borderColor: selectedWaste?.color }}>
-                  <div className="points-preview-left">
-                    <span>🌟 You will earn</span>
-                  </div>
-                  <div className="points-preview-right">
-                    <strong style={{ color: selectedWaste?.color }}>{calculatePoints()} points</strong>
-                    <span className="co2-saved">🌱 Saves {Math.round(parseFloat(formData.weight) * (selectedWaste?.value === 'plastic' ? 0.5 : selectedWaste?.value === 'paper' ? 0.3 : 1.2) * 10) / 10} kg CO₂</span>
-                  </div>
-                </div>
-              )}
+              {error && <div className="error-message">{error}</div>}
 
-              {error && (
-                <div className="error-message">
-                  <span>⚠️</span>
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <button type="submit" className="btn-generate" disabled={loading}>
-                {loading ? 'Generating Code...' : 'Generate Receipt Code'}
+              <button type="submit" disabled={loading}>
+                {loading ? 'Generating...' : 'Generate Code'}
               </button>
             </form>
           </div>
@@ -182,77 +157,11 @@ function SmartBinSimulator() {
 
         {step === 'receipt' && generatedCode && (
           <div className="receipt-card">
-            <div className="receipt-header">
-              <div className="receipt-logo">
-                <span className="logo-icon">♻️</span>
-                <span>SmartRecycle</span>
-              </div>
-              <div className="receipt-title">RECEIPT</div>
-              <div className="receipt-date">
-                {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}
-              </div>
-            </div>
+            <h2>Code Generated</h2>
+            <p>{generatedCode.code}</p>
 
-            <div className="receipt-body">
-              <div className="receipt-code-section">
-                <div className="code-label">YOUR REWARD CODE</div>
-                <div className="code-value">{generatedCode.code}</div>
-                <button 
-                  className="btn-copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(generatedCode.code);
-                    alert('✓ Code copied to clipboard!');
-                  }}
-                >
-                  📋 Copy Code
-                </button>
-              </div>
-
-              <div className="receipt-details">
-                <div className="detail-row">
-                  <span>♻️ Waste Type:</span>
-                  <strong>{generatedCode.wasteType.charAt(0).toUpperCase() + generatedCode.wasteType.slice(1)}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>⚖️ Weight:</span>
-                  <strong>{generatedCode.weight} kg</strong>
-                </div>
-                <div className="detail-row highlight">
-                  <span>⭐ Points Earned:</span>
-                  <strong>{generatedCode.pointsValue} points</strong>
-                </div>
-                <div className="detail-row">
-                  <span>🌍 CO₂ Saved:</span>
-                  <strong>{generatedCode.co2Saved} kg</strong>
-                </div>
-                <div className="detail-row">
-                  <span>📅 Expires:</span>
-                  <strong>{new Date(generatedCode.expiresAt).toLocaleDateString()}</strong>
-                </div>
-              </div>
-
-              <div className="receipt-message">
-                <p>✨ Keep this code safe! ✨</p>
-                <p>Go to <strong>SmartRecycle Website → Recycle → Smart Bin Code</strong></p>
-                <p>Enter this code to claim your points!</p>
-              </div>
-
-              <div className="receipt-qr-placeholder">
-                <div className="qr-simulate">
-                  <span>📱</span>
-                  <span>Visit website to redeem</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="receipt-footer">
-              <button className="btn-print" onClick={printReceipt}>
-                🖨️ Print Receipt
-              </button>
-              <button className="btn-new" onClick={resetForm}>
-                New Transaction
-              </button>
-            </div>
+            <button onClick={printReceipt}>Print</button>
+            <button onClick={resetForm}>New</button>
           </div>
         )}
       </div>
