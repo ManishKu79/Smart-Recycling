@@ -41,3 +41,78 @@ Database: MongoDB
 Authentication: JWT
 
 
+⚙️ Modules
+
+
+Authentication Module
+
+User Module
+
+Smart Bin Submission Module
+
+Pickup Request Module
+
+Reward Module
+
+Admin Module
+
+Database Module
+
+
+🔄 Workflow
+
+
+User registers/logs in
+
+Submits waste using Smart Bin code
+
+System validates and stores data
+
+Admin verifies submission
+
+Reward points are assigned
+
+User requests pickup
+
+Admin processes request
+
+
+🧪 Testing
+
+All major functionalities tested:
+
+Login Authentication ✅
+
+Smart Bin Submission ✅
+
+Pickup Request ✅
+
+Reward Calculation ✅
+
+Admin Verification ✅
+
+
+🔮 Future Enhancements
+
+GPS tracking for pickups
+
+Mobile app version
+
+AI-based waste classification
+
+Real-time notifications
+
+Smart city integration
+
+📜 License
+
+
+This project is developed for academic purposes.
+
+
+⭐ Acknowledgement
+
+
+Developed as a mini project to apply web technologies for solving real-world environmental problems.
+
+
