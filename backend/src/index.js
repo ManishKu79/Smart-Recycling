@@ -16,10 +16,14 @@ const rewardsRoutes = require('./routes/rewardsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const pickupRoutes = require('./routes/pickupRoutes');
 const app = express();
-
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:8000'],
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "https://smart-recycling-reward-system.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
